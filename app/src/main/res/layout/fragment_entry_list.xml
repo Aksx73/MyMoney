@@ -34,7 +34,7 @@
                     android:layout_marginBottom="4dp"
                     android:text="Net Balance:"
                     android:textSize="18dp"
-                    android:textStyle="bold"></TextView>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_balance"

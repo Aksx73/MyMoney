@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
-tools:context="com.android.account.book.ui.MainActivity">
+tools:context="com.absut.cash.management.ui.MainActivity">
 <item
     android:id="@+id/action_update"
     android:title="Update Entry"
