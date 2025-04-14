@@ -30,7 +30,8 @@ class AppModule {
         return Room.databaseBuilder(
             appContext,
             AccountDatabase::class.java,
-            Constants.DATABASE_NAME)
+            Constants.DATABASE_NAME
+        )
             .build()
     }
 

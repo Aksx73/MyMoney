@@ -16,22 +16,18 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding:ActivityMainBinding
     private lateinit var navController: NavController
-    lateinit var toolbar: MaterialToolbar
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private val viewModel by viewModels<BookListViewModel>()
+    //private val viewModel by viewModels<BookListViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
 
-        toolbar = binding.toolbar
-        setSupportActionBar(toolbar)
-
-        toolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             navController.navigateUp()
         }
 
