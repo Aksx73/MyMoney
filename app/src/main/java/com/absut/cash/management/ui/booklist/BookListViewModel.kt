@@ -14,7 +14,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookListViewModel @Inject constructor(
-    
     private val repository: BookRepository
 ) : ViewModel() {
 

@@ -286,9 +286,9 @@ fun BookListScreenPreview() {
 @Composable
 fun BookListContentPreview() {
     val sampleBooks = listOf(
-        Book(1, "The Hitchhiker's Guide to the Galaxy", 1000, 1, 1),
-        Book(2, "Pride and Prejudice", 2000, 1, 1),
-        Book(3, "To Kill a Mockingbird", 3000, 1, 1)
+        Book(1, "January 2025", 215000, 1, 1),
+        Book(2, "Dubai Trip", 2000, 1, 1),
+        Book(3, "Sample Book Title", 3000, 1, 1)
     )
     BookListContent(books = sampleBooks)
 }
