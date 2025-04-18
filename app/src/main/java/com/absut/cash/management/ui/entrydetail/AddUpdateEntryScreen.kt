@@ -23,6 +23,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -91,10 +92,12 @@ fun AddUpdateEntryScreen(modifier: Modifier = Modifier) {
             TopAppBar(
                 title = { Text("New Transaction") },
                 navigationIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Navigate Up"
-                    )
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
                 }
             )
         },
@@ -178,7 +181,9 @@ fun AddUpdateEntryScreen(modifier: Modifier = Modifier) {
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                     },
-                    modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                     label = { Text("Category") }
                 )
 
@@ -237,6 +242,7 @@ fun AddUpdateEntryScreen(modifier: Modifier = Modifier) {
                     .padding(horizontal = 16.dp)
             )
 
+            Spacer(Modifier.size(16.dp))
         }
     }
 }
