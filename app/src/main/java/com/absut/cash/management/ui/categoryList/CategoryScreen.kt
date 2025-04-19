@@ -43,11 +43,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.absut.cash.management.data.model.Category
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategoryScreen(modifier: Modifier = Modifier) {
+fun CategoryScreen(
+    modifier: Modifier = Modifier,
+    viewModel: CategoryListViewModel
+) {
 
     var showBottomSheet by remember { mutableStateOf(false) }
 
@@ -183,7 +187,9 @@ fun AddCategoryDialog(
     ) {
         //todo
         Surface(
-            modifier = Modifier.wrapContentWidth().wrapContentHeight(),
+            modifier = Modifier
+                .wrapContentWidth()
+                .wrapContentHeight(),
             shape = MaterialTheme.shapes.large,
             tonalElevation = AlertDialogDefaults.TonalElevation
         ) {
@@ -255,11 +261,10 @@ fun AddCategoryDialog(
 }
 
 
-
 @Preview
 @Composable
 private fun MainScreenPreview() {
-    CategoryScreen()
+    CategoryScreen(viewModel = viewModel<CategoryListViewModel>())
 }
 
 @Preview

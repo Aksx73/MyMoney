@@ -11,9 +11,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.SendAndArchive
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -47,6 +44,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.absut.cash.management.R
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -54,8 +52,10 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddUpdateEntryScreen(modifier: Modifier = Modifier) {
-
+fun AddUpdateEntryScreen(
+    modifier: Modifier = Modifier,
+    viewModel: EntryDetailViewModel
+) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val transactionTypeOptions = listOf("Cash In", "Cash Out")
     var amountText by remember { mutableStateOf("") }
@@ -250,6 +250,6 @@ fun AddUpdateEntryScreen(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun Preview() {
-    AddUpdateEntryScreen()
+    AddUpdateEntryScreen(viewModel = viewModel<EntryDetailViewModel>())
 }
 

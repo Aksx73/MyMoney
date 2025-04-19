@@ -43,11 +43,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.absut.cash.management.data.model.Entry
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EntryListScreen(modifier: Modifier = Modifier /*viewModel: EntryListViewModel*/) {
+fun EntryListScreen(
+    modifier: Modifier = Modifier,
+    viewModel: EntryListViewModel,
+    onNavigateToAddEntry: () -> Unit
+) {
 
     //val entries by viewModel.entriesList
     var showMenu by remember { mutableStateOf(false) }
@@ -346,7 +351,7 @@ fun EntryListItem(
 @Preview
 @Composable
 private fun EntryListScreenPreview() {
-    EntryListScreen()
+    EntryListScreen(viewModel = viewModel<EntryListViewModel>()) { }
 }
 
 @Preview

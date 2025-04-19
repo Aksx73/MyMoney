@@ -47,14 +47,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.absut.cash.management.data.model.Book
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookListScreen(
     modifier: Modifier = Modifier,
-    viewModel: BookListViewModel
+    viewModel: BookListViewModel,
+    onNavigateToEntryList: () -> Unit,
+    onNavigateToCategoryList: () -> Unit
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
     val books by viewModel.getAllBooks().collectAsState(initial = emptyList())
