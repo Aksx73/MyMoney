@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
@@ -44,14 +45,17 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Entry
+import com.absut.cash.management.ui.NavigationRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryListScreen(
     modifier: Modifier = Modifier,
     viewModel: EntryListViewModel,
-    onNavigateToAddEntry: () -> Unit
+    navController: NavController
 ) {
 
     //val entries by viewModel.entriesList
@@ -60,7 +64,15 @@ fun EntryListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Your Books") },
+                title = { Text("Your Books Name") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = { showMenu = true }) {
                         Icon(
@@ -74,7 +86,10 @@ fun EntryListScreen(
                     ) {
                         DropdownMenuItem(
                             text = { Text("Delete All Entries") },
-                            onClick = { showMenu = false },
+                            onClick = {
+                                //todo
+                                showMenu = false
+                            },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
@@ -114,7 +129,7 @@ fun EntryListScreen(
                     .background(MaterialTheme.colorScheme.surface)
             ) {
                 Button(
-                    onClick = {},
+                    onClick = {navController.navigate(NavigationRoutes.ADD_UPDATE_ENTRY)},
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
@@ -125,7 +140,7 @@ fun EntryListScreen(
                 }
                 Spacer(Modifier.size(12.dp))
                 Button(
-                    onClick = {},
+                    onClick = {navController.navigate(NavigationRoutes.ADD_UPDATE_ENTRY)},
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
@@ -351,7 +366,10 @@ fun EntryListItem(
 @Preview
 @Composable
 private fun EntryListScreenPreview() {
-    EntryListScreen(viewModel = viewModel<EntryListViewModel>()) { }
+    EntryListScreen(
+        viewModel = viewModel<EntryListViewModel>(),
+        navController = rememberNavController()
+    )
 }
 
 @Preview

@@ -83,37 +83,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainApp(navController: NavController) {
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = currentBackStackEntry?.destination?.route
-
-    val title = when (currentDestination) {
-        NavigationRoutes.BOOK_LIST -> "Your Books"
-        NavigationRoutes.ENTRY_LIST -> "Entries"
-        NavigationRoutes.ADD_UPDATE_ENTRY -> "New Transaction"
-        NavigationRoutes.CATEGORY_LIST -> "Categories"
-        else -> "MyMoney"
-    }
-
-    val showBackIcon = currentDestination != NavigationRoutes.BOOK_LIST
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(title) },
-                navigationIcon = {
-                    IconButton(onClick = {navController.navigateUp()}) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
-            )
-        },
-    ) { contentPadding ->
-        AppNavigation(navController as NavHostController, contentPadding)
-    }
-
+    AppNavigation(navController as NavHostController)
 }
 
 @Preview

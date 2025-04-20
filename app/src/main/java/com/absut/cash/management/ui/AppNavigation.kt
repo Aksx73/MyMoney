@@ -27,30 +27,34 @@ object NavigationRoutes {
 }
 
 @Composable
-fun AppNavigation(navController: NavHostController, paddingValues: PaddingValues) {
+fun AppNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
         startDestination = NavigationRoutes.BOOK_LIST,
-        modifier = Modifier.padding(paddingValues)
     ) {
         composable(NavigationRoutes.BOOK_LIST) {
             BookListScreen(
                 viewModel = hiltViewModel<BookListViewModel>(),
-                onNavigateToEntryList = { navController.navigate(NavigationRoutes.ENTRY_LIST) },
-                onNavigateToCategoryList = { navController.navigate(NavigationRoutes.CATEGORY_LIST) }
+                navController = navController
             )
         }
         composable(NavigationRoutes.ENTRY_LIST) {
             EntryListScreen(
                 viewModel = hiltViewModel<EntryListViewModel>(),
-                onNavigateToAddEntry = { navController.navigate(NavigationRoutes.ADD_UPDATE_ENTRY) }
+                navController = navController
             )
         }
         composable(NavigationRoutes.ADD_UPDATE_ENTRY) {
-            AddUpdateEntryScreen(viewModel = hiltViewModel<EntryDetailViewModel>())
+            AddUpdateEntryScreen(
+                viewModel = hiltViewModel<EntryDetailViewModel>(),
+                navController = navController
+            )
         }
         composable(NavigationRoutes.CATEGORY_LIST) {
-            CategoryScreen(viewModel = hiltViewModel<CategoryListViewModel>())
+            CategoryScreen(
+                viewModel = hiltViewModel<CategoryListViewModel>(),
+                navController = navController
+            )
         }
     }
 }

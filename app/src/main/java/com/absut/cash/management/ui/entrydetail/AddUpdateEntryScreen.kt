@@ -1,5 +1,6 @@
 package com.absut.cash.management.ui.entrydetail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,6 +46,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.R
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -54,7 +57,8 @@ import java.util.Locale
 @Composable
 fun AddUpdateEntryScreen(
     modifier: Modifier = Modifier,
-    viewModel: EntryDetailViewModel
+    viewModel: EntryDetailViewModel,
+    navController: NavController
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val transactionTypeOptions = listOf("Cash In", "Cash Out")
@@ -92,7 +96,7 @@ fun AddUpdateEntryScreen(
             TopAppBar(
                 title = { Text("New Transaction") },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
@@ -221,7 +225,10 @@ fun AddUpdateEntryScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .clickable {
+                        showDatePicker = true
+                    },
                 singleLine = true,
             )
 
@@ -250,6 +257,9 @@ fun AddUpdateEntryScreen(
 @Preview
 @Composable
 private fun Preview() {
-    AddUpdateEntryScreen(viewModel = viewModel<EntryDetailViewModel>())
+    AddUpdateEntryScreen(
+        viewModel = viewModel<EntryDetailViewModel>(),
+        navController = rememberNavController()
+    )
 }
 

@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
@@ -24,6 +25,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -47,17 +49,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Book
+import com.absut.cash.management.ui.NavigationRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookListScreen(
     modifier: Modifier = Modifier,
     viewModel: BookListViewModel,
-    onNavigateToEntryList: () -> Unit,
-    onNavigateToCategoryList: () -> Unit
+    navController: NavController
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
     val books by viewModel.getAllBooks().collectAsState(initial = emptyList())
 
     //to show bottom sheet
@@ -80,6 +85,32 @@ fun BookListScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Your Books") },
+                actions = {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "More options"
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Categories") },
+                            onClick = {
+                                navController.navigate(NavigationRoutes.CATEGORY_LIST)
+                                showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Dashboard,
+                                    contentDescription = "Delete All"
+                                )
+                            }
+                        )
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -111,6 +142,7 @@ fun BookListScreen(
 
         BookListContent(
             modifier = Modifier.padding(contentPadding),
+            navController = navController,
             books = books
         )
     }
@@ -118,14 +150,23 @@ fun BookListScreen(
 }
 
 @Composable
-fun BookListContent(modifier: Modifier = Modifier, books: List<Book>) {
+fun BookListContent(
+    modifier: Modifier = Modifier,
+    books: List<Book>,
+    navController: NavController
+) {
     Column(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(16.dp)
         ) {
             items(books) { book ->
-                BookListItem(book = book, onEdit = {}, onDelete = {})
+                BookListItem(
+                    book = book,
+                    onBookClick = { navController.navigate(NavigationRoutes.ENTRY_LIST) },
+                    onEdit = {},
+                    onDelete = {}
+                )
             }
         }
     }
@@ -135,15 +176,16 @@ fun BookListContent(modifier: Modifier = Modifier, books: List<Book>) {
 fun BookListItem(
     book: Book,
     modifier: Modifier = Modifier,
+    onBookClick: (Book) -> Unit = {},
     onEdit: (Book) -> Unit = {},
     onDelete: (Book) -> Unit = {}
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
     OutlinedCard(
+        onClick = { onBookClick(book) },
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = {})
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
@@ -167,15 +209,12 @@ fun BookListItem(
                     maxLines = 1,
                 )
             }
-            Box (
+            IconButton(
+                onClick = {
+                    showMenu = true
+                },
                 modifier = Modifier
-                    .size(48.dp) // Ensure a minimum size of 48dp
-                    .clickable(
-                        onClick = { showMenu = true },
-                        role = Role.Button // for accessibility
-                    ),
-                contentAlignment = Alignment.Center,
-            ){
+            ) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More options",
@@ -291,7 +330,7 @@ fun BookListContentPreview() {
         Book(2, "Dubai Trip", 2000, 1, 1),
         Book(3, "Sample Book Title", 3000, 1, 1)
     )
-    BookListContent(books = sampleBooks)
+    BookListContent(books = sampleBooks, navController = rememberNavController())
 }
 
 @Preview
