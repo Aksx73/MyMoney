@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
@@ -38,6 +39,7 @@ import com.absut.cash.management.ui.entrydetail.AddUpdateEntryScreen
 import com.absut.cash.management.ui.entrylist.EntryListScreen
 import com.google.android.material.appbar.MaterialToolbar
 import androidx.navigation.compose.composable
+import com.absut.cash.management.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -71,10 +73,13 @@ class MainActivity : ComponentActivity() {
      }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
-            val navController = rememberNavController()
-            MainApp(navController)
+            AppTheme {
+                val navController = rememberNavController()
+                MainApp(navController)
+            }
         }
     }
 
