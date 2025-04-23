@@ -32,6 +32,7 @@ class AppModule {
             AccountDatabase::class.java,
             Constants.DATABASE_NAME
         )
+            .fallbackToDestructiveMigration(true)
             .build()
     }
 
@@ -67,7 +68,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideEntryRepository(entryDao: EntryDao): EntryRepository {
-        return EntryRepoImpl(entryDao)
+    fun provideEntryRepository(entryDao: EntryDao, bookDao: BookDao): EntryRepository {
+        return EntryRepoImpl(entryDao, bookDao)
     }
 }
