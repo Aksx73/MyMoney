@@ -6,16 +6,17 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
     namespace = "com.absut.cash.management"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.absut.cash.management"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -58,6 +59,7 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.fragment:fragment-ktx:1.8.6")
     implementation("androidx.activity:activity-ktx:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     //compose
     val composeBom = platform("androidx.compose:compose-bom:2025.02.00")
     implementation(composeBom)
