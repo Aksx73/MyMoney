@@ -1,40 +1,55 @@
 package com.absut.cash.management.ui.categoryList
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.TempleHindu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,22 +70,88 @@ fun CategoryScreen(
     viewModel: CategoryListViewModel,
     navController: NavController
 ) {
-
+    val uiMessage by viewModel.uiMessage.collectAsState(initial = null)
+    val categories by viewModel.categories.collectAsState(initial = emptyList())
+    val isLoading by viewModel.isLoading.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
     var showBottomSheet by remember { mutableStateOf(false) }
+    var showDeleteAlertDialog by remember { mutableStateOf(false) }
 
+    LaunchedEffect(uiMessage) {
+        uiMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearUiMessage()
+        }
+    }
+
+    LaunchedEffect(true) {
+        viewModel.getCategories()
+    }
 
     if (showBottomSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showBottomSheet = false },
+            onDismissRequest = {
+                showBottomSheet = false
+                viewModel.selectedCategory = null
+            },
             sheetState = rememberModalBottomSheetState()
         ) {
             AddCategoryDialog(
-                onAddCategory = { title ->
-                    //todo handle adding category here
+                onAddCategory = { id, title ->
+                    if (id == 0) { //new category
+                        viewModel.addCategory(Category(name = title))
+                    } else { //update category
+                        viewModel.addCategory(Category(id = id, name = title))
+                    }
                     showBottomSheet = false
-                }
+                    viewModel.selectedCategory = null
+                },
+                category = viewModel.selectedCategory,
             )
         }
+    }
+
+    if (showDeleteAlertDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteAlertDialog = false
+                viewModel.selectedCategory = null
+            },
+            title = {
+                Text(text = "Delete Category")
+            },
+            text = {
+                Text(text = "Are you sure you want to delete this category?")
+            },
+            confirmButton = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    onClick = {
+                        viewModel.selectedCategory?.let { category ->
+                            viewModel.deleteCategory(category)
+                        }
+                        showDeleteAlertDialog = false
+                        viewModel.selectedCategory = null
+                    },
+                    content = { Text("Delete") }
+                )
+            },
+            dismissButton = {
+                OutlinedButton(
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    onClick = {
+                        showDeleteAlertDialog = false
+                        viewModel.selectedCategory = null
+                    },
+                    content = { Text("Cancel") }
+                )
+            }
+        )
     }
 
     Scaffold(
@@ -78,7 +159,7 @@ fun CategoryScreen(
             TopAppBar(
                 title = { Text("Categories") },
                 navigationIcon = {
-                    IconButton(onClick = {navController.navigateUp()}) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
@@ -89,21 +170,58 @@ fun CategoryScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showBottomSheet = true }
+                onClick = { showBottomSheet = true },
             ) {
                 Icon(Icons.Filled.Favorite, contentDescription = "Favorite")
             }
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { contentPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(contentPadding)
-        ) {
-            items(3) {
-                CategoryListItem(category = Category(it, "Category $it", it * 10))
+        when {
+            isLoading -> {
+                Column(
+                    Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LinearProgressIndicator()
+                }
+            }
+
+            categories.isNotEmpty() -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(contentPadding)
+                ) {
+                    items(categories) { category ->
+                        CategoryListItem(
+                            category,
+                            onUpdate = {
+                                viewModel.selectedCategory = category
+                                showBottomSheet = true
+                            },
+                            onDelete = {
+                                viewModel.selectedCategory = category
+                                showDeleteAlertDialog = true
+                            }
+                        )
+                    }
+                }
+            }
+
+            else -> { //empty screen
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(contentPadding),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(imageVector = Icons.Outlined.TempleHindu, contentDescription = null)
+                    Text(text = "No categories")
+                }
             }
         }
-
 
     }
 }
@@ -112,8 +230,8 @@ fun CategoryScreen(
 fun CategoryListItem(
     category: Category,
     modifier: Modifier = Modifier,
-    onUpdate: (Category) -> Unit = {},
-    onDelete: (Category) -> Unit = {}
+    onUpdate: (Category) -> Unit,
+    onDelete: (Category) -> Unit
 ) {
 
     var showMenu by remember { mutableStateOf(false) }
@@ -178,41 +296,42 @@ fun CategoryListItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCategoryDialog(
-    onAddCategory: (String) -> Unit,
-    modifier: Modifier = Modifier
+    onAddCategory: (Int, String) -> Unit,
+    modifier: Modifier = Modifier,
+    category: Category? = null
 ) {
-    var categoryTitle by remember { mutableStateOf("") }
+    var categoryTitle by remember { mutableStateOf(category?.name ?: "") }
     var isError by remember { mutableStateOf(false) }
 
-    BasicAlertDialog(
-        modifier = modifier,
-        onDismissRequest = {}
-    ) {
-        //todo
-        Surface(
-            modifier = Modifier
-                .wrapContentWidth()
-                .wrapContentHeight(),
-            shape = MaterialTheme.shapes.large,
-            tonalElevation = AlertDialogDefaults.TonalElevation
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text =
-                        "This area typically contains the supportive text " +
-                                "which presents the details regarding the Dialog's purpose.",
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                TextButton(
-                    onClick = { onAddCategory(categoryTitle) },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Confirm")
-                }
-            }
-        }
+    /* BasicAlertDialog(
+         modifier = modifier,
+         onDismissRequest = {}
+     ) {
+         //todo
+         Surface(
+             modifier = Modifier
+                 .wrapContentWidth()
+                 .wrapContentHeight(),
+             shape = MaterialTheme.shapes.large,
+             tonalElevation = AlertDialogDefaults.TonalElevation
+         ) {
+             Column(modifier = Modifier.padding(16.dp)) {
+                 Text(
+                     text =
+                         "This area typically contains the supportive text " +
+                                 "which presents the details regarding the Dialog's purpose.",
+                 )
+                 Spacer(modifier = Modifier.height(24.dp))
+                 TextButton(
+                     onClick = { onAddCategory(categoryTitle) },
+                     modifier = Modifier.align(Alignment.End)
+                 ) {
+                     Text("Confirm")
+                 }
+             }
+         }
 
-    }
+     }*/
 
     Column(
         modifier = modifier
@@ -248,7 +367,7 @@ fun AddCategoryDialog(
         Button(
             onClick = {
                 if (categoryTitle.isNotBlank()) {
-                    onAddCategory(categoryTitle)
+                    onAddCategory(category?.id ?: 0, categoryTitle)
                     categoryTitle = ""
                 } else {
                     isError = true
@@ -267,15 +386,20 @@ fun AddCategoryDialog(
 @Preview
 @Composable
 private fun MainScreenPreview() {
-    CategoryScreen(viewModel = viewModel<CategoryListViewModel>(), navController = rememberNavController())
+    CategoryScreen(
+        viewModel = viewModel<CategoryListViewModel>(),
+        navController = rememberNavController()
+    )
 }
 
 @Preview
 @Composable
 private fun ListItemPreview() {
-    val category = Category(0, "Food", 23)
+    val category = Category(0, "Food")
     Surface {
-        CategoryListItem(category = category, modifier = Modifier.padding(16.dp))
+        CategoryListItem(
+            category = category, modifier = Modifier.padding(16.dp),
+            onUpdate = {}, onDelete = {})
     }
 }
 
@@ -283,7 +407,7 @@ private fun ListItemPreview() {
 @Composable
 private fun AddCategoryPreview() {
     Surface {
-        AddCategoryDialog(onAddCategory = {
+        AddCategoryDialog(onAddCategory = { a, b ->
 
         })
     }
