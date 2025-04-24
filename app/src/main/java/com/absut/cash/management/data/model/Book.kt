@@ -12,8 +12,8 @@ data class Book(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     var title: String,
-    var bookAmount: Int = 0, //1000
-    var cashIn: Int = 0,    //  1200+100
-    val cashOut: Int = 0,   //   200
+    var bookAmount: Int = 0,
+    var cashIn: Int = 0,
+    val cashOut: Int = 0,
     val created: Long = System.currentTimeMillis()
 ) : Parcelable
