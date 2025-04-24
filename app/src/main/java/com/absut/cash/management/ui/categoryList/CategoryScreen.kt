@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Delete
@@ -33,6 +36,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -56,12 +60,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Category
+import com.absut.cash.management.ui.component.IconPickerDropdownMenu
+import com.absut.cash.management.ui.component.StoredIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,11 +109,11 @@ fun CategoryScreen(
             sheetState = rememberModalBottomSheetState()
         ) {
             AddCategoryDialog(
-                onAddCategory = { id, title ->
+                onAddCategory = { id, iconId, title ->
                     if (id == 0) { //new category
-                        viewModel.addCategory(Category(name = title))
+                        viewModel.addCategory(Category(iconId = iconId, name = title.trim()))
                     } else { //update category
-                        viewModel.addCategory(Category(id = id, name = title))
+                        viewModel.addCategory(Category(id = id!!, iconId = iconId, name = title.trim()))
                     }
                     showBottomSheet = false
                     viewModel.selectedCategory = null
@@ -169,10 +181,11 @@ fun CategoryScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            LargeFloatingActionButton(
                 onClick = { showBottomSheet = true },
             ) {
-                Icon(Icons.Filled.Favorite, contentDescription = "Favorite")
+                Icon(Icons.Filled.Add, contentDescription = "Add category",
+                    modifier = Modifier.size(44.dp))
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -243,7 +256,7 @@ fun CategoryListItem(
         },
         leadingContent = {
             Icon(
-                Icons.Filled.Favorite,
+                StoredIcon.asImageVector(category.iconId ?: 0),
                 contentDescription = "Category icon",
             )
         },
@@ -296,12 +309,15 @@ fun CategoryListItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCategoryDialog(
-    onAddCategory: (Int, String) -> Unit,
+    onAddCategory: (Int?, Int?, String) -> Unit,
     modifier: Modifier = Modifier,
     category: Category? = null
 ) {
     var categoryTitle by remember { mutableStateOf(category?.name ?: "") }
+    var iconId by remember { mutableStateOf(category?.iconId ?: 0) }
     var isError by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
 
     /* BasicAlertDialog(
          modifier = modifier,
@@ -355,11 +371,22 @@ fun AddCategoryDialog(
             label = { Text("Category Title") },
             isError = isError,
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             supportingText = if (isError) {
                 { Text("Title cannot be empty") }
             } else null,
-            singleLine = true
+            leadingIcon = {
+                IconPickerDropdownMenu(
+                    currentIcon = StoredIcon.asImageVector(iconId),
+                    onSelectedIconClick = { iconId = it },
+                    onClick = { focusManager.clearFocus() },
+                )
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences
+            )
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -367,8 +394,9 @@ fun AddCategoryDialog(
         Button(
             onClick = {
                 if (categoryTitle.isNotBlank()) {
-                    onAddCategory(category?.id ?: 0, categoryTitle)
+                    onAddCategory(category?.id ?: 0, iconId, categoryTitle)
                     categoryTitle = ""
+                    iconId = 0
                 } else {
                     isError = true
                 }
@@ -379,6 +407,12 @@ fun AddCategoryDialog(
         ) {
             Text("Add Category")
         }
+
+        /*LaunchedEffect(categoryTitle) {
+            if (categoryTitle.isBlank()) {
+                focusRequester.requestFocus()
+            }
+        }*/
     }
 }
 
@@ -407,7 +441,7 @@ private fun ListItemPreview() {
 @Composable
 private fun AddCategoryPreview() {
     Surface {
-        AddCategoryDialog(onAddCategory = { a, b ->
+        AddCategoryDialog(onAddCategory = { a, b, c ->
 
         })
     }
