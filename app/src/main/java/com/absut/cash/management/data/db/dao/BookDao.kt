@@ -34,7 +34,7 @@ interface BookDao {
     /*@Query("DELETE FROM category_table WHERE book_id=:bookId")
     suspend fun deleteBookCategories(bookId: Int)*/
 
-    @Query("DELETE FROM entry_table WHERE book_id=:bookId")
+    @Query("DELETE FROM entry_table WHERE bookId=:bookId")
     suspend fun deleteBookEntries(bookId: Int)
 
     @Transaction
