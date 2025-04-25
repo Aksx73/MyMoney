@@ -28,10 +28,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,24 +51,41 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.absut.cash.management.data.model.Book
+import com.absut.cash.management.data.model.Category
 import com.absut.cash.management.data.model.Entry
-import com.absut.cash.management.ui.NavigationRoutes
+import com.absut.cash.management.data.model.EntryWithCategory
+import com.absut.cash.management.ui.AddUpdateEntryRoute
+import com.absut.cash.management.ui.entrydetail.EntryType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryListScreen(
-    modifier: Modifier = Modifier,
     viewModel: EntryListViewModel,
-    navController: NavController
+    navController: NavController,
+    bookId: Int
 ) {
-
-    //val entries by viewModel.entriesList
     var showMenu by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val uiMessage by viewModel.uiMessage.collectAsState(initial = null)
+    val book by viewModel.book.collectAsState()
+    val entries by viewModel.entries.collectAsState()
+
+    LaunchedEffect(bookId) {
+        viewModel.getBookFromId(bookId)
+        viewModel.getEntriesOfBook(bookId)
+    }
+
+    LaunchedEffect(uiMessage) {
+        uiMessage?.let {
+            snackbarHostState.showSnackbar(it)
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Your Books Name") },
+                title = { Text(book?.title ?: "Book Details") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -101,13 +122,14 @@ fun EntryListScreen(
                 }
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { contentPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding),
         ) {
-            SummaryCard()
+            SummaryCard(b = book)
 
             Text(
                 text = "Entries",
@@ -118,7 +140,7 @@ fun EntryListScreen(
             )
 
             EntryListContent(
-                entries = emptyList(),
+                entries = entries,
                 modifier = Modifier.weight(1f)
             )
 
@@ -129,7 +151,15 @@ fun EntryListScreen(
                     .background(MaterialTheme.colorScheme.surface)
             ) {
                 Button(
-                    onClick = {navController.navigate(NavigationRoutes.ADD_UPDATE_ENTRY)},
+                    onClick = {
+                        navController.navigate(
+                            AddUpdateEntryRoute(
+                                entryType = EntryType.CASH_IN,
+                                bookId = bookId,
+                                entryId = null
+                            )
+                        )
+                    },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
@@ -140,7 +170,15 @@ fun EntryListScreen(
                 }
                 Spacer(Modifier.size(12.dp))
                 Button(
-                    onClick = {navController.navigate(NavigationRoutes.ADD_UPDATE_ENTRY)},
+                    onClick = {
+                        navController.navigate(
+                            AddUpdateEntryRoute(
+                                entryType = EntryType.CASH_OUT,
+                                bookId = bookId,
+                                entryId = null
+                            )
+                        )
+                    },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
@@ -158,7 +196,7 @@ fun EntryListScreen(
 }
 
 @Composable
-fun SummaryCard(modifier: Modifier = Modifier) {
+fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
     OutlinedCard(modifier = modifier.padding(16.dp)) {
         Column(Modifier.padding(vertical = 16.dp)) {
             Row(Modifier.fillMaxWidth()) {
@@ -172,7 +210,7 @@ fun SummaryCard(modifier: Modifier = Modifier) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "₹10820",
+                    text = "₹${b?.bookAmount ?: 0}",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                     ),
@@ -198,7 +236,7 @@ fun SummaryCard(modifier: Modifier = Modifier) {
                         .padding(start = 16.dp),
                 )
                 Text(
-                    text = "₹17000",
+                    text = "₹${b?.cashIn ?: 0}",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.End,
                     modifier = Modifier
@@ -218,7 +256,7 @@ fun SummaryCard(modifier: Modifier = Modifier) {
 
                     )
                 Text(
-                    text = "₹6100",
+                    text = "₹${b?.cashOut ?: 0}",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.End,
                     color = MaterialTheme.colorScheme.error,
@@ -233,7 +271,7 @@ fun SummaryCard(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun EntryListContent(modifier: Modifier = Modifier, entries: List<Entry>) {
+fun EntryListContent(modifier: Modifier = Modifier, entries: List<EntryWithCategory>) {
     Column(modifier = modifier) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -248,10 +286,10 @@ fun EntryListContent(modifier: Modifier = Modifier, entries: List<Entry>) {
 
 @Composable
 fun EntryListItem(
-    entry: Entry,
+    entry: EntryWithCategory,
     modifier: Modifier = Modifier,
-    onUpdate: (Entry) -> Unit = {},
-    onDelete: (Entry) -> Unit = {}
+    onUpdate: (EntryWithCategory) -> Unit = {},
+    onDelete: (EntryWithCategory) -> Unit = {}
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -264,7 +302,7 @@ fun EntryListItem(
             val (category, amount, date, description, optionIcon) = createRefs()
 
             Text(
-                text = "${entry.category}",
+                text = "${entry.category?.name}",
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.constrainAs(category) {
                     top.linkTo(parent.top)
@@ -273,7 +311,7 @@ fun EntryListItem(
             )
 
             Text(
-                text = " • ${entry.updatedDate}",
+                text = " • ${entry.entry.formattedUpdatedAt}",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier
                     .constrainAs(date) {
@@ -284,7 +322,7 @@ fun EntryListItem(
             )
 
             Text(
-                text = entry.description ?: "--",
+                text = entry.entry.description ?: "--",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .constrainAs(description) {
@@ -299,7 +337,7 @@ fun EntryListItem(
             )
 
             Text(
-                text = "₹${entry.entry_amount}",
+                text = "₹${entry.entry.entryAmount}",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -331,7 +369,7 @@ fun EntryListItem(
                     onDismissRequest = { showMenu = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Update") },
+                        text = { Text("Edit") },
                         onClick = {
                             onUpdate(entry)
                             showMenu = false
@@ -339,7 +377,7 @@ fun EntryListItem(
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Outlined.Edit,
-                                contentDescription = "Rename"
+                                contentDescription = "Edit"
                             )
                         }
                     )
@@ -368,7 +406,8 @@ fun EntryListItem(
 private fun EntryListScreenPreview() {
     EntryListScreen(
         viewModel = viewModel<EntryListViewModel>(),
-        navController = rememberNavController()
+        navController = rememberNavController(),
+        bookId = 1
     )
 }
 
@@ -376,35 +415,53 @@ private fun EntryListScreenPreview() {
 @Composable
 private fun EntryListContentPreview() {
     val list = listOf(
-        Entry(
-            _id = 1,
-            updated_at = System.currentTimeMillis(),
-            description = "Sample description",
-            entry_amount = 3423,
-            entry_type = 1,
-            book_id = 1,
-            category_id = 1,
-            category = "travel"
+        EntryWithCategory(
+            Entry(
+                id = 1,
+                updatedAt = System.currentTimeMillis(),
+                description = "Sample description",
+                entryAmount = 3423,
+                entryType = 1,
+                bookId = 1,
+                categoryId = 1,
+            ),
+            Category(
+                id = 1,
+                name = "Uncategorized",
+                iconId = 1,
+            )
         ),
-        Entry(
-            _id = 1,
-            updated_at = System.currentTimeMillis(),
-            description = "Sample description",
-            entry_amount = 3423,
-            entry_type = 1,
-            book_id = 1,
-            category_id = 1,
-            category = "travel"
+        EntryWithCategory(
+            Entry(
+                id = 1,
+                updatedAt = System.currentTimeMillis(),
+                description = "Sample description",
+                entryAmount = 3423,
+                entryType = 1,
+                bookId = 1,
+                categoryId = 1,
+            ),
+            Category(
+                id = 1,
+                name = "Uncategorized",
+                iconId = 1,
+            )
         ),
-        Entry(
-            _id = 1,
-            updated_at = System.currentTimeMillis(),
-            description = "Sample description",
-            entry_amount = 3423,
-            entry_type = 1,
-            book_id = 1,
-            category_id = 1,
-            category = "travel"
+        EntryWithCategory(
+            Entry(
+                id = 1,
+                updatedAt = System.currentTimeMillis(),
+                description = "Sample description",
+                entryAmount = 3423,
+                entryType = 1,
+                bookId = 1,
+                categoryId = 1,
+            ),
+            Category(
+                id = 1,
+                name = "Uncategorized",
+                iconId = 1,
+            )
         )
     )
     Surface(Modifier.fillMaxSize()) {
@@ -414,9 +471,18 @@ private fun EntryListContentPreview() {
 
 @Preview
 @Composable
-fun SummaryCardPreview(modifier: Modifier = Modifier) {
+fun SummaryCardPreview() {
     Surface {
-        SummaryCard(modifier = Modifier.padding(16.dp))
+        SummaryCard(
+            modifier = Modifier.padding(16.dp),
+            b = Book(
+                id = 1,
+                title = "Sample Book",
+                cashOut = 213,
+                cashIn = 234,
+                bookAmount = 3242
+            )
+        )
     }
 }
 
@@ -424,16 +490,23 @@ fun SummaryCardPreview(modifier: Modifier = Modifier) {
 @Composable
 private fun EntryListItemPreview() {
     val entry = Entry(
-        _id = 1,
-        updated_at = System.currentTimeMillis(),
+        id = 1,
+        updatedAt = System.currentTimeMillis(),
         description = "Sample description",
-        entry_amount = 3423,
-        entry_type = 1,
-        book_id = 1,
-        category_id = 1,
-        category = "travel"
+        entryAmount = 3423,
+        entryType = 1,
+        bookId = 1,
+        categoryId = 1,
+    )
+    val category = Category(
+        id = 1,
+        name = "Uncategorized",
+        iconId = 1,
     )
     Surface {
-        EntryListItem(entry = entry, modifier = Modifier.padding(16.dp))
+        EntryListItem(
+            entry = EntryWithCategory(entry, category),
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }

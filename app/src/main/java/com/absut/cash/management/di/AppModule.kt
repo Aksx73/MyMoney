@@ -68,7 +68,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideEntryRepository(entryDao: EntryDao, bookDao: BookDao): EntryRepository {
-        return EntryRepoImpl(entryDao, bookDao)
+    fun provideEntryRepository(entryDao: EntryDao, bookDao: BookDao, categoryDao: CategoryDao): EntryRepository {
+        return EntryRepoImpl(entryDao, bookDao, categoryDao)
     }
 }
