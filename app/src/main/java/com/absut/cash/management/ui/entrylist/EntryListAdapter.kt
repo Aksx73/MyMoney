@@ -43,7 +43,7 @@ class EntryListAdapter(
         }
         fun bind(entry: Entry) {
             binding.apply {
-                if(entry.category!= null) {
+                /*if(entry.category!= null) {
                     tvCategory.text = entry.category
                 } else {
                     tvCategory.text = "---"
@@ -55,7 +55,7 @@ class EntryListAdapter(
                     tvAmount.setTextColor(tvAmount.context.getColor(R.color.holo_green_dark))
                 } else {
                     tvAmount.setTextColor(tvAmount.context.getColor(R.color.holo_red_dark))
-                }
+                }*/
              }
         }
     }
@@ -67,7 +67,7 @@ class EntryListAdapter(
 
  class DiffCallback : DiffUtil.ItemCallback<Entry>() {
   override fun areItemsTheSame(oldItem: Entry, newItem: Entry) =
-   oldItem._id == newItem._id
+   oldItem.id == newItem.id
 
   override fun areContentsTheSame(oldItem: Entry, newItem: Entry) =
    oldItem == newItem

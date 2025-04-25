@@ -46,8 +46,8 @@ class BookListAdapter(
 
         fun bind(book: Book) {
             binding.txtTitle.text = book.title
-            binding.txtAmount.text = book.book_amount.toString()
-            if(book.book_amount>0) {
+            binding.txtAmount.text = book.bookAmount.toString()
+            if(book.bookAmount>0) {
                 binding.txtAmount.setTextColor(binding.parentCard.resources.getColor(R.color.holo_green_dark))
             } else {
                 binding.txtAmount.setTextColor(binding.root.resources.getColor(R.color.holo_red_dark))
@@ -62,7 +62,7 @@ class BookListAdapter(
 
     class DiffCallback : DiffUtil.ItemCallback<Book>() {
         override fun areItemsTheSame(oldItem: Book, newItem: Book) =
-            oldItem._id == newItem._id
+            oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: Book, newItem: Book) =
             oldItem == newItem

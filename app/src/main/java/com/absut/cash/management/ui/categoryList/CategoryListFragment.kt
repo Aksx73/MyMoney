@@ -62,18 +62,18 @@ class CategoryListFragment: Fragment(R.layout.fragment_category_list),
             }
         }
 
-        lifecycle.coroutineScope.launch {
+        /*lifecycle.coroutineScope.launch {
             viewModel.getCategories(args.bookId).collectIndexed { _, value ->
                 categoryAdapter.submitList(value)
             }
-        }
+        }*/
 
-        viewModel.responseMessage.observe(viewLifecycleOwner) {
+        /*viewModel.responseMessage.observe(viewLifecycleOwner) {
             if (it.toString()!=""){
                 Toast.makeText(this.activity, it.toString(), Toast.LENGTH_LONG).show()
                 bottomSheetDialog.dismiss()
             }
-        }
+        }*/
     }
 
     private fun showBottomSheetDialog() {
@@ -83,7 +83,7 @@ class CategoryListFragment: Fragment(R.layout.fragment_category_list),
         btAdd.text = "+ ADD NEW CATEGORY"
         btAdd.setOnClickListener {
             val title = bottomSheetDialog.findViewById<TextInputEditText>(R.id.et_title)?.text.toString()
-            viewModel.addCategory(Category(name = title, book_id = args.bookId))
+            viewModel.addCategory(Category(name = title))
         }
         val btClose = bottomSheetDialog.findViewById<ImageView>(R.id.bt_close)!!
         btClose.setOnClickListener {

@@ -51,7 +51,7 @@ class EntryDetailFragment:Fragment(R.layout.fragment_entry_detail) {
         } else if (type == -1) {
             (activity as AppCompatActivity).supportActionBar?.title = "Add Cash Out Entry"
         } else {
-            if(args.entry!= null) {
+           /* if(args.entry!= null) {
                 entryAmount = args.entry?.entry_amount
                 if(args.entry!!.entry_type == 1) {
                     (activity as AppCompatActivity).supportActionBar?.title = "Update Cash In Entry"
@@ -61,13 +61,13 @@ class EntryDetailFragment:Fragment(R.layout.fragment_entry_detail) {
                 binding.etAmount.setText(args.entry!!.entry_amount.toString())
                 binding.etCategory.setText(args.entry!!.category)
                 binding.etRemark.setText(args.entry!!.description)
-                if(args.entry!!.category_id!= null) {
-                    selectedCategory = Category(_id = args.entry!!.category_id!!,
-                        name = args.entry!!.category!!, book_id = args.entry!!.book_id)
+                if(args.entry!!.categoryId!= null) {
+                    selectedCategory = Category(id = args.entry!!.category_id!!,
+                        name = args.entry!!.category!!*//*, book_id = args.entry!!.book_id*//*)
                 }
                 binding.btSave.text = "UPDATE"
 
-            }
+            }*/
         }
 
         binding.etCategory.setOnClickListener {
@@ -85,11 +85,11 @@ class EntryDetailFragment:Fragment(R.layout.fragment_entry_detail) {
         binding.btSave.setOnClickListener {
             if(binding.etAmount.text.toString().isNotEmpty()) {
                 if(type == 1 || type == -1) {
-                    if(selectedCategory!= null) {
+                   /* if(selectedCategory!= null) {
                         val entry = Entry(
                             entry_amount = binding.etAmount.text.toString().toInt(), entry_type = args.entryType,
                             description = binding.etRemark.text.toString(), book_id = args.bookId,
-                            category_id = selectedCategory!!._id, category = selectedCategory!!.name)
+                            category_id = selectedCategory!!.id, category = selectedCategory!!.name)
                         viewModel.addEntry(entry)
                     } else {
                         val entry = Entry(
@@ -97,19 +97,19 @@ class EntryDetailFragment:Fragment(R.layout.fragment_entry_detail) {
                             description = binding.etRemark.text.toString(), book_id = args.bookId,
                             category_id = null, category = null)
                         viewModel.addEntry(entry)
-                    }
+                    }*/
 
                 } else {
-                    if(selectedCategory!= null) {
+                    /*if(selectedCategory!= null) {
                         val entry = args.entry!!.copy(entry_amount = binding.etAmount.text.toString().toInt(),
                             description = binding.etRemark.text.toString(),
-                            category_id = selectedCategory!!._id, category = selectedCategory!!.name)
+                            category_id = selectedCategory!!.id, category = selectedCategory!!.name)
                         viewModel.updateEntry(entry)
                     } else {
                         val entry = args.entry!!.copy(entry_amount = binding.etAmount.text.toString().toInt(),
                             description = binding.etRemark.text.toString())
                         viewModel.updateEntry(entry)
-                    }
+                    }*/
 
                 }
             } else {
@@ -122,36 +122,36 @@ class EntryDetailFragment:Fragment(R.layout.fragment_entry_detail) {
                 var book: Book? = null
                 if (it == 1) {
                     if (args.entryType == 1) {
-                        book = selectedBookViewModel.currentBook.value!!.copy(
+                      /*  book = selectedBookViewModel.currentBook.value!!.copy(
                             cash_in =
                             selectedBookViewModel.currentBook.value!!.cash_in + binding.etAmount.text.toString()
                                 .toInt()
-                        )
+                        )*/
                     } else {
-                        book = selectedBookViewModel.currentBook.value!!.copy(
+                      /*  book = selectedBookViewModel.currentBook.value!!.copy(
                             cash_out =
                             selectedBookViewModel.currentBook.value!!.cash_out + binding.etAmount.text.toString()
                                 .toInt()
-                        )
+                        )*/
                     }
                 } else if (it == 2) {
-                    if (args.entry!!.entry_type == 1) {
-                        book = selectedBookViewModel.currentBook.value!!.copy(
+                    if (args.entry!!.entryType == 1) {
+                       /* book = selectedBookViewModel.currentBook.value!!.copy(
                             cash_in =
                             (selectedBookViewModel.currentBook.value!!.cash_in - entryAmount!!) + binding.etAmount.text.toString()
                                 .toInt()
-                        )
+                        )*/
                     } else {
-                        book = selectedBookViewModel.currentBook.value!!.copy(
+                       /* book = selectedBookViewModel.currentBook.value!!.copy(
                             cash_out =
                             (selectedBookViewModel.currentBook.value!!.cash_out - entryAmount!!) + binding.etAmount.text.toString()
                                 .toInt()
-                        )
+                        )*/
                     }
                 }
-                book!!.book_amount = book!!.cash_in - book!!.cash_out
+                //book!!.book_amount = book!!.cash_in - book!!.cash_out
 
-                selectedBookViewModel.updateBook(book)
+                selectedBookViewModel.updateBook(book!!)
                 findNavController().navigateUp()
             }
         }

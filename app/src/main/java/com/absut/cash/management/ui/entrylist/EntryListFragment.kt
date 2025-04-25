@@ -54,10 +54,10 @@ class EntryListFragment : Fragment(R.layout.fragment_entry_list),
 
         setUI()
 
-        viewModel.getEntriesOfBook(args.book!!._id)
+        viewModel.getEntriesOfBook(args.book!!.id)
 
-        if (selectedBookViewModel.currentBook.value != null) {
-            selectedBookViewModel.currentBook.value.let {
+        if (selectedBookViewModel.selectedBook != null) {
+            selectedBookViewModel.selectedBook.let {
                 binding.apply {
                     rvEntry.adapter = entryAdapter
                     rvEntry.layoutManager = LinearLayoutManager(requireContext())
@@ -66,7 +66,7 @@ class EntryListFragment : Fragment(R.layout.fragment_entry_list),
                             EntryListFragmentDirections.actionEntryListFragmentToEntryDetailFragment(
                                 null,
                                 1,
-                                args.book!!._id
+                                args.book!!.id
                             )
                         findNavController().navigate(action)
                     }
@@ -75,7 +75,7 @@ class EntryListFragment : Fragment(R.layout.fragment_entry_list),
                             EntryListFragmentDirections.actionEntryListFragmentToEntryDetailFragment(
                                 null,
                                 -1,
-                                args.book!!._id
+                                args.book!!.id
                             )
                         findNavController().navigate(action)
                     }
@@ -83,7 +83,7 @@ class EntryListFragment : Fragment(R.layout.fragment_entry_list),
             }
         }
 
-        viewModel.entriesList.observe(viewLifecycleOwner) {
+        /*viewModel.entriesList.observe(viewLifecycleOwner) {
             lifecycle.coroutineScope.launch {
                 it.collectLatest {
                     entryAdapter.submitList(it)
@@ -92,27 +92,27 @@ class EntryListFragment : Fragment(R.layout.fragment_entry_list),
                     }
                 }
             }
-        }
+        }*/
 
-        viewModel.responseMessage.observe(viewLifecycleOwner) {
+        /*viewModel.responseMessage.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled().let {
                 if (it!=null && deletedEntry!=null) {
                     var book: Book? = null
                     if (deletedEntry!!.entry_type ==1) {
-                        book = selectedBookViewModel.currentBook.value!!.copy(
-                            cash_in = selectedBookViewModel.currentBook.value!!.cash_in -
+                        book = selectedBookViewModel.selectedBook!!.copy(
+                            cashIn = selectedBookViewModel.selectedBook!!.cashIn -
                                     deletedEntry!!.entry_amount)
                     } else {
-                        book = selectedBookViewModel.currentBook.value!!.copy(
-                            cash_out = selectedBookViewModel.currentBook.value!!.cash_out -
+                        book = selectedBookViewModel.selectedBook!!.copy(
+                            cashOut = selectedBookViewModel.selectedBook!!.cashOut -
                                     deletedEntry!!.entry_amount)
                     }
-                    book.book_amount = book.cash_in - book.cash_out
-                    selectedBookViewModel.updateBook(book)
+                    book?.bookAmount = book?.cashIn!! - book?.cashOut!!
+                    selectedBookViewModel.updateBook(book!!)
                     setUI()
                 }
             }
-        }
+        }*/
     }
 
     override fun onItemClick(entry: Entry) {
@@ -156,11 +156,11 @@ class EntryListFragment : Fragment(R.layout.fragment_entry_list),
     }
 
     private fun setUI() {
-        binding.tvCashIn.text = selectedBookViewModel.currentBook.value!!.cash_in.toString()
-        binding.tvCashOut.text = selectedBookViewModel.currentBook.value!!.cash_out.toString()
-        binding.tvBalance.text = selectedBookViewModel.currentBook.value!!.book_amount.toString()
+        binding.tvCashIn.text = selectedBookViewModel.selectedBook!!.cashIn.toString()
+        binding.tvCashOut.text = selectedBookViewModel.selectedBook!!.cashOut.toString()
+        binding.tvBalance.text = selectedBookViewModel.selectedBook!!.bookAmount.toString()
 
-        if (selectedBookViewModel.currentBook.value!!.book_amount > 0) {
+        if (selectedBookViewModel.selectedBook!!.bookAmount > 0) {
             binding.tvBalance.setTextColor(resources.getColor(R.color.holo_green_dark))
         } else {
             binding.tvBalance.setTextColor(resources.getColor(R.color.holo_red_dark))

@@ -62,7 +62,7 @@ class BookListFragment : Fragment(R.layout.fragment_book_list),
             }
         }
 
-        lifecycle.coroutineScope.launch {
+       /* lifecycle.coroutineScope.launch {
             viewModel.getAllBooks().collectIndexed { _, value ->
                 bookAdapter.submitList(value)
                 if (value.isEmpty()) {
@@ -81,7 +81,7 @@ class BookListFragment : Fragment(R.layout.fragment_book_list),
                 }
                 bottomSheetDialog.dismiss()
             }
-        }
+        }*/
     }
 
     fun showBottomSheetDialog() {
@@ -109,7 +109,7 @@ class BookListFragment : Fragment(R.layout.fragment_book_list),
 
     override fun onItemClick(book: Book) {
         val action = BookListFragmentDirections.actionBookListFragmentToEntryListFragment(book)
-        viewModel.setCurrentBook(book)
+        //viewModel.setCurrentBook(book)
         findNavController().navigate(action)
     }
 
@@ -155,7 +155,7 @@ class BookListFragment : Fragment(R.layout.fragment_book_list),
         btAdd.setOnClickListener {
             var title = etTitle.text.toString()
             if (title.isNotEmpty()) {
-                viewModel.updateBookTitle(book._id, title)
+                viewModel.updateBookTitle(book.id, title)
             } else {
                 Toast.makeText(activity, "Please enter title for book.", Toast.LENGTH_LONG).show()
             }
