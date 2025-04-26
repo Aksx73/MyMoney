@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface CategoryRepository {
 
     suspend fun addCategory(category: Category)
-
-    fun getAllCategories(bookId: Int): Flow<List<Category>>
+    suspend fun updateCategory(category: Category)
+    suspend fun deleteCategory(category: Category)
+    fun getAllCategories(): Flow<List<Category>>
 }

@@ -7,10 +7,19 @@ import javax.inject.Inject
 
 class CategoryRepoImpl @Inject constructor(private val dao: CategoryDao): CategoryRepository {
     override suspend fun addCategory(category: Category) {
-        return dao.addCategory(category)
+        return dao.add(category)
     }
 
-    override fun getAllCategories(bookId: Int): Flow<List<Category>> {
-        return dao.getCategoriesOfBook(bookId)
+    override fun getAllCategories(): Flow<List<Category>> {
+        return dao.getCategories()
+    }
+
+
+    override suspend fun updateCategory(category: Category) {
+        return dao.update(category)
+    }
+
+    override suspend fun deleteCategory(category: Category) {
+        return dao.delete(category)
     }
 }

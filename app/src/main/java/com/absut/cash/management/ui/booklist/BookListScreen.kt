@@ -1,8 +1,6 @@
 package com.absut.cash.management.ui.booklist
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,13 +12,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Book
+import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,14 +33,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,15 +52,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Book
-import com.absut.cash.management.ui.NavigationRoutes
+import com.absut.cash.management.data.model.Category
+import com.absut.cash.management.ui.CategoryListRoute
+import com.absut.cash.management.ui.EntryListRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,23 +71,90 @@ fun BookListScreen(
     viewModel: BookListViewModel,
     navController: NavController
 ) {
-    var showBottomSheet by remember { mutableStateOf(false) }
+    var showAddBookBottomSheet by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
-    val books by viewModel.getAllBooks().collectAsState(initial = emptyList())
+    val books by viewModel.books.collectAsState(initial = emptyList())
+    val uiMessage by viewModel.uiMessage.collectAsState(initial = null)
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showDeleteAlertDialog by remember { mutableStateOf(false) }
+
 
     //to show bottom sheet
-    if (showBottomSheet) {
+    if (showAddBookBottomSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showBottomSheet = false },
+            onDismissRequest = {
+                viewModel.selectedBook = null
+                showAddBookBottomSheet = false
+            },
             sheetState = rememberModalBottomSheetState()
         ) {
             AddBookBottomSheet(
-                onAddBook = { title ->
-                    //todo handle adding book here
-                    showBottomSheet = false
-                }
+                onAddBook = { id, title ->
+                    if (id == 0) { // new book
+                        viewModel.addBook(Book(title = title))
+                    } else { // update book
+                        viewModel.updateBookTitle(bookId = id, title = title)
+                    }
+                    showAddBookBottomSheet = false
+                    viewModel.selectedBook = null
+                },
+                book = viewModel.selectedBook,
             )
         }
+    }
+
+    LaunchedEffect(uiMessage) {
+        uiMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearUiMessage()
+        }
+    }
+
+    LaunchedEffect(true) {
+        viewModel.getAllBooks()
+    }
+
+    if (showDeleteAlertDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteAlertDialog = false
+                viewModel.selectedBook = null
+            },
+            title = {
+                Text(text = "Delete ${viewModel.selectedBook?.title}")
+            },
+            text = {
+                Text(text = "Are you sure you want to delete this book?")
+            },
+            confirmButton = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    onClick = {
+                        viewModel.selectedBook?.let { book ->
+                            viewModel.deleteBook(book)
+                        }
+                        showDeleteAlertDialog = false
+                        viewModel.selectedBook = null
+                    },
+                    content = { Text("Delete") }
+                )
+            },
+            dismissButton = {
+                OutlinedButton(
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    onClick = {
+                        showDeleteAlertDialog = false
+                        viewModel.selectedBook = null
+                    },
+                    content = { Text("Cancel") }
+                )
+            }
+        )
     }
 
     //main content
@@ -99,13 +176,13 @@ fun BookListScreen(
                         DropdownMenuItem(
                             text = { Text("Categories") },
                             onClick = {
-                                navController.navigate(NavigationRoutes.CATEGORY_LIST)
+                                navController.navigate(CategoryListRoute)
                                 showMenu = false
                             },
                             leadingIcon = {
                                 Icon(
-                                    imageVector = Icons.Outlined.Dashboard,
-                                    contentDescription = "Delete All"
+                                    imageVector = Icons.Outlined.Category,
+                                    contentDescription = "Categories"
                                 )
                             }
                         )
@@ -115,36 +192,42 @@ fun BookListScreen(
         },
         floatingActionButton = {
             LargeFloatingActionButton(
-                onClick = { showBottomSheet = true },
-                modifier = Modifier.padding(16.dp),
+                onClick = { showAddBookBottomSheet = true },
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    imageVector = Icons.Outlined.Book,
                     contentDescription = "Add Book",
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(44.dp)
                 )
             }
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { contentPadding ->
-        /*Column(
-            modifier = Modifier
+        Column(
+            modifier = modifier
                 .fillMaxSize()
-                .padding(contentPadding),
+                .padding(contentPadding)
         ) {
-
-            LazyColumn(modifier = Modifier.padding(16.dp)) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 112.dp)
+            ) {
                 items(books) { book ->
-                    BookListItem(book = book, onEdit = {}, onDelete = {})
+                    BookListItem(
+                        book = book,
+                        onBookClick = { navController.navigate(EntryListRoute(bookId = book.id)) },
+                        onEdit = {
+                            viewModel.selectedBook = book
+                            showAddBookBottomSheet = true
+                        },
+                        onDelete = {
+                            viewModel.selectedBook = book
+                            showDeleteAlertDialog = true
+                        }
+                    )
                 }
             }
-
-        }*/
-
-        BookListContent(
-            modifier = Modifier.padding(contentPadding),
-            navController = navController,
-            books = books
-        )
+        }
     }
 
 }
@@ -163,8 +246,8 @@ fun BookListContent(
             items(books) { book ->
                 BookListItem(
                     book = book,
-                    onBookClick = { navController.navigate(NavigationRoutes.ENTRY_LIST) },
-                    onEdit = {},
+                    onBookClick = { navController.navigate(EntryListRoute(bookId = book.id)) },
+                    onEdit = { },
                     onDelete = {}
                 )
             }
@@ -204,7 +287,7 @@ fun BookListItem(
                 )
                 Spacer(Modifier.size(4.dp))
                 Text(
-                    text = "₹${book.book_amount}",
+                    text = "₹${book.bookAmount}",
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                 )
@@ -260,10 +343,11 @@ fun BookListItem(
 
 @Composable
 fun AddBookBottomSheet(
-    onAddBook: (String) -> Unit,
-    modifier: Modifier = Modifier
+    onAddBook: (Int, String) -> Unit,
+    modifier: Modifier = Modifier,
+    book: Book? = null
 ) {
-    var bookTitle by remember { mutableStateOf("") }
+    var bookTitle by remember { mutableStateOf(book?.title ?: "") }
     var isError by remember { mutableStateOf(false) }
 
     Column(
@@ -292,7 +376,10 @@ fun AddBookBottomSheet(
             supportingText = if (isError) {
                 { Text("Title cannot be empty") }
             } else null,
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words
+            )
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -300,7 +387,7 @@ fun AddBookBottomSheet(
         Button(
             onClick = {
                 if (bookTitle.isNotBlank()) {
-                    onAddBook(bookTitle)
+                    onAddBook(book?.id ?: 0, bookTitle)
                     bookTitle = ""
                 } else {
                     isError = true
@@ -337,7 +424,7 @@ fun BookListContentPreview() {
 @Composable
 private fun AddBookPreview() {
     Surface {
-        AddBookBottomSheet(onAddBook = {
+        AddBookBottomSheet(onAddBook = { sd, s ->
 
         })
     }

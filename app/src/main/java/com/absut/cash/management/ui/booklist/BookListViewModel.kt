@@ -1,14 +1,14 @@
 package com.absut.cash.management.ui.booklist
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.absut.cash.management.data.model.Book
-import com.absut.cash.management.data.model.EventWrapper
 import com.absut.cash.management.data.repository.BookRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,43 +16,76 @@ import javax.inject.Inject
 class BookListViewModel @Inject constructor(
     private val repository: BookRepository
 ) : ViewModel() {
+    private val _books = MutableStateFlow<List<Book>>(emptyList())
+    val books = _books.asStateFlow()
 
-    private val mutableBook = MutableLiveData<Book?>()
-    val currentBook: LiveData<Book?> get() = mutableBook
+    private val _uiMessage = MutableSharedFlow<String?>()
+    val uiMessage = _uiMessage.asSharedFlow()
 
-    private val mutableResponseMessage = MutableLiveData<EventWrapper<String>>()
-    val responseMessage: LiveData<EventWrapper<String>> get() = mutableResponseMessage
+    var selectedBook: Book? = null
 
-    fun setCurrentBook(book: Book?) {
-        mutableBook.value = book
+    fun clearUiMessage() = viewModelScope.launch {
+        _uiMessage.emit(null)
     }
 
     fun addBook(book: Book) {
         viewModelScope.launch {
-            repository.addBook(book)
-            mutableResponseMessage.value = EventWrapper("Book added.")
+            try {
+                val existingCategory = _books.value.find {
+                    it.title.equals(book.title, ignoreCase = true)
+                }
+
+                if (existingCategory != null) {
+                    _uiMessage.emit("Book with this name already exists")
+                    return@launch
+                }
+
+                repository.addBook(book)
+                _uiMessage.emit("Book added successfully")
+
+            } catch (e: Exception) {
+                _uiMessage.emit("Failed to add book")
+            }
         }
     }
 
-    fun getAllBooks(): Flow<List<Book>> = repository.getAllBooks()
+    fun getAllBooks() = viewModelScope.launch {
+        repository.getAllBooks()
+            .collect { books ->
+                _books.value = books
+            }
+    }
 
     fun updateBook(book: Book) {
-        mutableBook.value = book
         viewModelScope.launch {
-            repository.updateBook(book)
+            try {
+                repository.updateBook(book)
+                _uiMessage.emit("Book updated successfully")
+            } catch (e: Exception) {
+                _uiMessage.emit("Failed to update book")
+            }
         }
     }
 
     fun updateBookTitle(bookId: Int, title: String) {
         viewModelScope.launch {
-            repository.updateBookTitle(bookId, title)
-            mutableResponseMessage.value = EventWrapper("Book title updated.")
+            try {
+                repository.updateBookTitle(bookId, title)
+                _uiMessage.emit("Book renamed successfully")
+            } catch (e: Exception) {
+                _uiMessage.emit("Failed to rename book")
+            }
         }
     }
 
     fun deleteBook(book: Book) {
         viewModelScope.launch {
-            repository.deleteBook(book)
+            try {
+                repository.deleteBook(book)
+                _uiMessage.emit("Book deleted successfully")
+            } catch (e: Exception) {
+                _uiMessage.emit("Failed to delete book")
+            }
         }
     }
 

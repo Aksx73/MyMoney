@@ -10,10 +10,10 @@ import kotlinx.parcelize.Parcelize
 @Entity(tableName = Constants.BOOKS_TABLE_NAME)
 data class Book(
     @PrimaryKey(autoGenerate = true)
-    val _id: Int = 0,
+    val id: Int = 0,
     var title: String,
-    var book_amount: Int = 0, //1000
-    var cash_in: Int = 0,    //  1200+100
-    val cash_out: Int = 0,   //   200
+    var bookAmount: Int = 0,
+    var cashIn: Int = 0,
+    val cashOut: Int = 0,
     val created: Long = System.currentTimeMillis()
 ) : Parcelable
