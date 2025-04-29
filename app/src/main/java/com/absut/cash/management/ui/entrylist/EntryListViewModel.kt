@@ -1,25 +1,19 @@
 package com.absut.cash.management.ui.entrylist
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.absut.cash.management.data.model.Book
 import com.absut.cash.management.data.model.Category
 import com.absut.cash.management.data.model.Entry
 import com.absut.cash.management.data.model.EntryWithCategory
-import com.absut.cash.management.data.model.EventWrapper
 import com.absut.cash.management.data.repository.BookRepository
 import com.absut.cash.management.data.repository.EntryRepository
-import com.absut.cash.management.ui.entrydetail.EntryType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -82,7 +76,6 @@ class EntryListViewModel @Inject constructor(
         try {
             repository.deleteAllEntries(bookId)
             updateBooKAmountOnAllEntryDelete()
-            //_uiMessage.emit("All entries deleted successfully")
         } catch (e: Exception) {
             _uiMessage.emit("Failed to delete entries")
         }
@@ -100,27 +93,21 @@ class EntryListViewModel @Inject constructor(
                     _uiMessage.emit("Invalid book reference")
                     return@launch
                 }
-
                 repository.addEntry(entry)
-                //_entryAddUpdateSuccess.value = true
-                //_uiMessage.emit("Entry added successfully")
                 updateBookAmounts(entry)
             } catch (e: Exception) {
-                //_entryAddUpdateSuccess.value = false
+                _entryAddUpdateSuccess.value = false
                 _uiMessage.emit("Failed to add entry")
             }
-            //mutableActionType.value = 1
         }
     }
 
     fun updateEntry(entry: Entry) = viewModelScope.launch {
         try {
             repository.updateEntry(entry)
-            //_entryAddUpdateSuccess.value = true
-            // _uiMessage.emit("Entry updated successfully")
             updateBookAmountsForEdit(selectedEntry?.entry!!, entry)
         } catch (e: Exception) {
-            // _entryAddUpdateSuccess.value = false
+             _entryAddUpdateSuccess.value = false
             _uiMessage.emit("Failed to update entry")
         }
     }

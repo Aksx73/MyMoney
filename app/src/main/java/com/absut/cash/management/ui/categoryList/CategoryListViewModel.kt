@@ -1,14 +1,10 @@
 package com.absut.cash.management.ui.categoryList
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.absut.cash.management.data.model.Category
-import com.absut.cash.management.data.model.Entry
 import com.absut.cash.management.data.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -85,7 +81,6 @@ class CategoryListViewModel @Inject constructor(
         } else {
             repository.getActiveCategories()
         }
-        //repository.getAllCategories()
         categoriesFlow.collect { categories ->
             _categories.value = categories
             _isLoading.value = false

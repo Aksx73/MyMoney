@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
-import androidx.compose.material.icons.filled.CurrencyBitcoin
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.Attractions
 import androidx.compose.material.icons.outlined.Autorenew
@@ -52,17 +50,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.absut.cash.management.ui.icon.MyIcons
-import com.absut.cash.management.ui.icon.outlined.AccountBalance
 import com.absut.cash.management.ui.icon.outlined.Apparel
-import com.absut.cash.management.ui.icon.outlined.Bitcoin
-import com.absut.cash.management.ui.icon.outlined.Category
-import com.absut.cash.management.ui.icon.outlined.Chair
 import com.absut.cash.management.ui.icon.outlined.Dentistry
 import com.absut.cash.management.ui.icon.outlined.Exercise
-import com.absut.cash.management.ui.icon.outlined.Fastfood
 import com.absut.cash.management.ui.icon.outlined.Monitoring
 import com.absut.cash.management.ui.icon.outlined.Pill
-import com.absut.cash.management.ui.icon.outlined.Restaurant
 import com.absut.cash.management.ui.icon.outlined.Scooter
 import com.absut.cash.management.ui.icon.outlined.SelfCare
 import com.absut.cash.management.ui.icon.outlined.Travel

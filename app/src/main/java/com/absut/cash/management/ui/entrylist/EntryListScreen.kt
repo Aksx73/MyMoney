@@ -1,7 +1,5 @@
 package com.absut.cash.management.ui.entrylist
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -56,20 +54,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ChainStyle
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.absut.cash.management.data.model.Book
 import com.absut.cash.management.data.model.Category
 import com.absut.cash.management.data.model.Entry
 import com.absut.cash.management.data.model.EntryWithCategory
 import com.absut.cash.management.ui.AddUpdateEntryRoute
 import com.absut.cash.management.ui.component.TextWithBackground
-import com.absut.cash.management.ui.entrydetail.EntryType
 import com.absut.cash.management.util.toEntryType
 
 @OptIn(ExperimentalMaterial3Api::class)

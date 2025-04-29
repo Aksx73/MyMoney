@@ -18,15 +18,6 @@ interface EntryDao {
     @Query("SELECT * FROM entry_table WHERE bookId=:bookId ORDER BY updatedAt DESC")
     fun getAllEntriesOfBook(bookId: Int): Flow<List<Entry>>
 
-    /*@Query("""
-    SELECT e.*,
-           c.id as category_id, c.name as category_name, c.iconId as category_iconId
-    FROM entry_table e
-    LEFT JOIN category_table c ON e.categoryId = c.id
-    WHERE e.bookId = :bookId 
-    ORDER BY e.updatedAt DESC
-""")*/
-
     @Transaction
     @Query("""
         SELECT e.*, c.id AS category_id, c.name AS category_name, c.iconId AS category_iconId, isActive AS category_isActive

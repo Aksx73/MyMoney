@@ -1,6 +1,6 @@
 package com.absut.cash.management.util
 
-import com.absut.cash.management.ui.entrydetail.EntryType
+import com.absut.cash.management.ui.entrylist.EntryType
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

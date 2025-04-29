@@ -10,8 +10,8 @@ import com.absut.cash.management.ui.booklist.BookListScreen
 import com.absut.cash.management.ui.booklist.BookListViewModel
 import com.absut.cash.management.ui.categoryList.CategoryListViewModel
 import com.absut.cash.management.ui.categoryList.CategoryScreen
-import com.absut.cash.management.ui.entrydetail.AddUpdateEntryScreen
-import com.absut.cash.management.ui.entrydetail.EntryType
+import com.absut.cash.management.ui.entrylist.AddUpdateEntryScreen
+import com.absut.cash.management.ui.entrylist.EntryType
 import com.absut.cash.management.ui.entrylist.EntryListScreen
 import com.absut.cash.management.ui.entrylist.EntryListViewModel
 import kotlinx.serialization.Serializable

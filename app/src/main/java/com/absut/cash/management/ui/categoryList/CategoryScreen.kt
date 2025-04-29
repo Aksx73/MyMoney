@@ -5,50 +5,34 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Category
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.TempleHindu
 import androidx.compose.material.icons.outlined.ToggleOff
 import androidx.compose.material.icons.outlined.ToggleOn
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -57,7 +41,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -74,16 +57,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Category
-import com.absut.cash.management.ui.CategoryListRoute
 import com.absut.cash.management.ui.component.IconPickerDropdownMenu
 import com.absut.cash.management.ui.component.StoredIcon
 
@@ -121,7 +101,7 @@ fun CategoryScreen(
             },
             sheetState = rememberModalBottomSheetState()
         ) {
-            AddCategoryDialog(
+            AddCategoryBottomSheet(
                 onAddCategory = { id, iconId, title ->
                     if (id == 0) { //new category
                         viewModel.addCategory(Category(iconId = iconId, name = title.trim()))
@@ -384,7 +364,7 @@ fun CategoryListItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCategoryDialog(
+fun AddCategoryBottomSheet(
     onAddCategory: (Int?, Int?, String) -> Unit,
     modifier: Modifier = Modifier,
     category: Category? = null
@@ -394,36 +374,6 @@ fun AddCategoryDialog(
     var isError by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
-
-    /* BasicAlertDialog(
-         modifier = modifier,
-         onDismissRequest = {}
-     ) {
-         //todo
-         Surface(
-             modifier = Modifier
-                 .wrapContentWidth()
-                 .wrapContentHeight(),
-             shape = MaterialTheme.shapes.large,
-             tonalElevation = AlertDialogDefaults.TonalElevation
-         ) {
-             Column(modifier = Modifier.padding(16.dp)) {
-                 Text(
-                     text =
-                         "This area typically contains the supportive text " +
-                                 "which presents the details regarding the Dialog's purpose.",
-                 )
-                 Spacer(modifier = Modifier.height(24.dp))
-                 TextButton(
-                     onClick = { onAddCategory(categoryTitle) },
-                     modifier = Modifier.align(Alignment.End)
-                 ) {
-                     Text("Confirm")
-                 }
-             }
-         }
-
-     }*/
 
     Column(
         modifier = modifier
@@ -483,12 +433,6 @@ fun AddCategoryDialog(
         ) {
             Text("Add Category")
         }
-
-        /*LaunchedEffect(categoryTitle) {
-            if (categoryTitle.isBlank()) {
-                focusRequester.requestFocus()
-            }
-        }*/
     }
 }
 
@@ -528,7 +472,7 @@ private fun ListItemPreview2() {
 @Composable
 private fun AddCategoryPreview() {
     Surface {
-        AddCategoryDialog(onAddCategory = { a, b, c ->
+        AddCategoryBottomSheet(onAddCategory = { a, b, c ->
 
         })
     }
