@@ -1,22 +1,30 @@
 package com.absut.cash.management.ui.entrylist
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -26,6 +34,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -40,23 +49,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.absut.cash.management.data.model.Book
 import com.absut.cash.management.data.model.Category
 import com.absut.cash.management.data.model.Entry
 import com.absut.cash.management.data.model.EntryWithCategory
 import com.absut.cash.management.ui.AddUpdateEntryRoute
+import com.absut.cash.management.ui.component.TextWithBackground
 import com.absut.cash.management.ui.entrydetail.EntryType
+import com.absut.cash.management.util.toEntryType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +84,8 @@ fun EntryListScreen(
     val uiMessage by viewModel.uiMessage.collectAsState(initial = null)
     val book by viewModel.book.collectAsState()
     val entries by viewModel.entries.collectAsState()
+    var showDeleteAlertDialog by remember { mutableStateOf(false) }
+    var showDeleteAllAlertDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(bookId) {
         viewModel.getBookFromId(bookId)
@@ -79,13 +95,106 @@ fun EntryListScreen(
     LaunchedEffect(uiMessage) {
         uiMessage?.let {
             snackbarHostState.showSnackbar(it)
+            viewModel.clearUiMessage()
         }
+    }
+
+    if (showDeleteAlertDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteAlertDialog = false
+                viewModel.selectedEntry = null
+            },
+            title = {
+                Text(text = "Delete Entry")
+            },
+            text = {
+                Text(text = "Are you sure you want to delete this entry of amount ₹${viewModel.selectedEntry?.entry?.entryAmount}?")
+            },
+            confirmButton = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    onClick = {
+                        viewModel.selectedEntry?.let { entry ->
+                            viewModel.deleteEntry(entry.entry)
+                        }
+                        showDeleteAlertDialog = false
+                        viewModel.selectedEntry = null
+                    },
+                    content = { Text("Delete") }
+                )
+            },
+            dismissButton = {
+                OutlinedButton(
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    onClick = {
+                        showDeleteAlertDialog = false
+                        viewModel.selectedEntry = null
+                    },
+                    content = { Text("Cancel") }
+                )
+            }
+        )
+    }
+
+    if (showDeleteAllAlertDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteAllAlertDialog = false
+            },
+            title = {
+                Text(text = "Delete All Entries")
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Warning,
+                    contentDescription = "Delete All",
+                )
+            },
+            text = {
+                Text(text = "Are you sure you want to delete all ${entries.size} entries in this book(${book?.title})?")
+            },
+            confirmButton = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    onClick = {
+                        viewModel.deleteAllEntries(bookId)
+                        showDeleteAllAlertDialog = false
+                    },
+                    content = { Text("Delete") }
+                )
+            },
+            dismissButton = {
+                OutlinedButton(
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    onClick = {
+                        showDeleteAllAlertDialog = false
+                    },
+                    content = { Text("Cancel") }
+                )
+            }
+        )
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(book?.title ?: "Book Details") },
+                title = {
+                    Column {
+                        Text("Book Details", style = MaterialTheme.typography.titleLarge)
+                        Text(book?.title ?: "", style = MaterialTheme.typography.titleSmall)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -108,7 +217,7 @@ fun EntryListScreen(
                         DropdownMenuItem(
                             text = { Text("Delete All Entries") },
                             onClick = {
-                                //todo
+                                showDeleteAllAlertDialog = true
                                 showMenu = false
                             },
                             leadingIcon = {
@@ -122,33 +231,12 @@ fun EntryListScreen(
                 }
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { contentPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding),
-        ) {
-            SummaryCard(b = book)
-
-            Text(
-                text = "Entries",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.fillMaxWidth(),
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-            )
-
-            EntryListContent(
-                entries = entries,
-                modifier = Modifier.weight(1f)
-            )
-
+        bottomBar = {
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .background(MaterialTheme.colorScheme.surface)
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Button(
                     onClick = {
@@ -188,6 +276,88 @@ fun EntryListScreen(
                     Text("- Cash Out")
                 }
             }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { contentPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            SummaryCard(b = book)
+
+            Text(
+                text = "Entries",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.fillMaxWidth(),
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+
+            EntryListContent(
+                entries = entries,
+                modifier = Modifier.weight(1f, false),
+                onUpdate = { entry ->
+                    viewModel.selectedEntry = entry
+                    navController.navigate(
+                        AddUpdateEntryRoute(
+                            entryType = entry.entry.entryType.toEntryType(),
+                            bookId = entry.entry.bookId,
+                            entryId = entry.entry.id
+                        )
+                    )
+                },
+                onDelete = { entry ->
+                    viewModel.selectedEntry = entry
+                    showDeleteAlertDialog = true
+                }
+            )
+
+            /* Row(
+                 Modifier
+                     .fillMaxWidth()
+                     .padding(16.dp)
+                     .background(MaterialTheme.colorScheme.surface)
+             ) {
+                 Button(
+                     onClick = {
+                         navController.navigate(
+                             AddUpdateEntryRoute(
+                                 entryType = EntryType.CASH_IN,
+                                 bookId = bookId,
+                                 entryId = null
+                             )
+                         )
+                     },
+                     modifier = Modifier.weight(1f),
+                     colors = ButtonDefaults.buttonColors(
+                         containerColor = MaterialTheme.colorScheme.primary,
+                         contentColor = MaterialTheme.colorScheme.onPrimary
+                     )
+                 ) {
+                     Text("+ Cash In")
+                 }
+                 Spacer(Modifier.size(12.dp))
+                 Button(
+                     onClick = {
+                         navController.navigate(
+                             AddUpdateEntryRoute(
+                                 entryType = EntryType.CASH_OUT,
+                                 bookId = bookId,
+                                 entryId = null
+                             )
+                         )
+                     },
+                     modifier = Modifier.weight(1f),
+                     colors = ButtonDefaults.buttonColors(
+                         containerColor = MaterialTheme.colorScheme.error,
+                         contentColor = MaterialTheme.colorScheme.onError
+                     )
+                 ) {
+                     Text("- Cash Out")
+                 }
+             }*/
 
         }
 
@@ -214,6 +384,11 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                     ),
+                    color = if ((b?.bookAmount ?: 0) >= 0) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    },
                     textAlign = TextAlign.End,
                     modifier = Modifier
                         .weight(1f)
@@ -259,7 +434,6 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                     text = "₹${b?.cashOut ?: 0}",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.End,
-                    color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 16.dp),
@@ -271,14 +445,26 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
 }
 
 @Composable
-fun EntryListContent(modifier: Modifier = Modifier, entries: List<EntryWithCategory>) {
+fun EntryListContent(
+    modifier: Modifier = Modifier,
+    entries: List<EntryWithCategory>,
+    onUpdate: (EntryWithCategory) -> Unit = {},
+    onDelete: (EntryWithCategory) -> Unit = {}
+) {
     Column(modifier = modifier) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(16.dp)
         ) {
             items(entries) { entry ->
-                EntryListItem(entry = entry, onUpdate = {}, onDelete = {})
+                EntryListItem(
+                    entry = entry,
+                    onUpdate = {
+                        onUpdate(entry)
+                    },
+                    onDelete = {
+                        onDelete(entry)
+                    })
             }
         }
     }
@@ -294,109 +480,102 @@ fun EntryListItem(
     var showMenu by remember { mutableStateOf(false) }
 
     OutlinedCard(modifier = modifier) {
-        ConstraintLayout(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp, 16.dp, 0.dp, 16.dp)
+                .padding(16.dp, 16.dp, 0.dp, 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            val (category, amount, date, description, optionIcon) = createRefs()
-
-            Text(
-                text = "${entry.category?.name}",
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.constrainAs(category) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                }
-            )
-
-            Text(
-                text = " • ${entry.entry.formattedUpdatedAt}",
-                style = MaterialTheme.typography.bodySmall,
+            Column(
                 modifier = Modifier
-                    .constrainAs(date) {
-                        top.linkTo(parent.top)
-                        start.linkTo(category.end)
-                    }
-                //.padding(start = 8.dp)
-            )
-
-            Text(
-                text = entry.entry.description ?: "--",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .constrainAs(description) {
-                        start.linkTo(parent.start)
-                        top.linkTo(date.bottom)
-                        end.linkTo(amount.start)
-                        width = Dimension.fillToConstraints
-                    }
-                    .padding(end = 16.dp, top = 8.dp),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Text(
-                text = "₹${entry.entry.entryAmount}",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier
-                    .constrainAs(amount) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        end.linkTo(optionIcon.start)
-                    }
-                    .padding(end = 8.dp)
-            )
-
-            IconButton(
-                onClick = { showMenu = true },
-                modifier = Modifier
-                    .constrainAs(optionIcon) {
-                        end.linkTo(parent.end)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                    }
+                    .weight(1f)
+                    .padding(end = 16.dp),
+                verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = "More option"
-                )
-
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Edit") },
-                        onClick = {
-                            onUpdate(entry)
-                            showMenu = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Edit,
-                                contentDescription = "Edit"
-                            )
-                        }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextWithBackground(
+                        text = entry.category?.name ?: "Uncategorized",
+                        enabled = entry.category?.isActive ?: true
                     )
-                    DropdownMenuItem(
+                    Spacer(Modifier.size(8.dp))
+                    Text(
+                        text = entry.entry.formattedUpdatedAt,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                    )
+                }
 
-                        text = { Text("Delete") },
-                        onClick = {
-                            onDelete(entry)
-                            showMenu = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = "Delete Book"
-                            )
-                        }
+                if (!entry.entry.description.isNullOrBlank()) {
+                    Text(
+                        text = entry.entry.description,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "₹${entry.entry.entryAmount}",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = if (entry.entry.entryType == EntryType.CASH_OUT.value) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
+                    modifier = Modifier
+                    //.padding(end = 8.dp)
+                )
+                IconButton(
+                    onClick = { showMenu = true },
+                    modifier = Modifier
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "More option"
+                    )
+
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Edit") },
+                            onClick = {
+                                onUpdate(entry)
+                                showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Edit,
+                                    contentDescription = "Edit"
+                                )
+                            }
+                        )
+                        DropdownMenuItem(
+
+                            text = { Text("Delete") },
+                            onClick = {
+                                onDelete(entry)
+                                showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Delete,
+                                    contentDescription = "Delete Book"
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+
         }
     }
 }
@@ -423,7 +602,7 @@ private fun EntryListContentPreview() {
                 entryAmount = 3423,
                 entryType = 1,
                 bookId = 1,
-                categoryId = 1,
+                categoryId = 2,
             ),
             Category(
                 id = 1,
@@ -435,11 +614,11 @@ private fun EntryListContentPreview() {
             Entry(
                 id = 1,
                 updatedAt = System.currentTimeMillis(),
-                description = "Sample description",
+                description = "",
                 entryAmount = 3423,
-                entryType = 1,
+                entryType = 0,
                 bookId = 1,
-                categoryId = 1,
+                categoryId = 3,
             ),
             Category(
                 id = 1,
@@ -451,7 +630,7 @@ private fun EntryListContentPreview() {
             Entry(
                 id = 1,
                 updatedAt = System.currentTimeMillis(),
-                description = "Sample description",
+                description = "Sample description lorem ipsum ample description ample description ample description ample description",
                 entryAmount = 3423,
                 entryType = 1,
                 bookId = 1,

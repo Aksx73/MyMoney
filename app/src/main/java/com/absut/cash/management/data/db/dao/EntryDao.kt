@@ -29,7 +29,7 @@ interface EntryDao {
 
     @Transaction
     @Query("""
-        SELECT e.*, c.*
+        SELECT e.*, c.id AS category_id, c.name AS category_name, c.iconId AS category_iconId, isActive AS category_isActive
         FROM entry_table AS e
         LEFT JOIN category_table AS c ON e.categoryId = c.id 
         WHERE e.bookId = :bookId 

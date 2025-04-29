@@ -25,7 +25,7 @@ import java.text.DateFormat
             entity = Category::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("categoryId"),
-            onDelete = ForeignKey.SET_NULL,
+            onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.CASCADE
         )
     ]
