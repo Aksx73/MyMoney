@@ -31,16 +31,17 @@ interface BookDao {
     @Delete
     suspend fun deleteBook(book: Book)
 
-    /*@Query("DELETE FROM category_table WHERE book_id=:bookId")
-    suspend fun deleteBookCategories(bookId: Int)*/
 
     @Query("DELETE FROM entry_table WHERE bookId=:bookId")
     suspend fun deleteBookEntries(bookId: Int)
 
+    /**
+     * No need to delete all entries separately as we have added foreign key constraint in Entry table
+     * to remove all entries if associated book ifd is deleted
+     * */
     @Transaction
     suspend fun deleteBookData(book: Book) {
         deleteBook(book)
-        //deleteBookCategories(book._id)
         deleteBookEntries(book.id)
     }
 

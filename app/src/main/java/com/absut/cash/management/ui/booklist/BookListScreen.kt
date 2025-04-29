@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -91,9 +92,9 @@ fun BookListScreen(
             AddBookBottomSheet(
                 onAddBook = { id, title ->
                     if (id == 0) { // new book
-                        viewModel.addBook(Book(title = title))
+                        viewModel.addBook(Book(title = title.trim()))
                     } else { // update book
-                        viewModel.updateBookTitle(bookId = id, title = title)
+                        viewModel.updateBookTitle(bookId = id, title = title.trim())
                     }
                     showAddBookBottomSheet = false
                     viewModel.selectedBook = null
@@ -120,11 +121,17 @@ fun BookListScreen(
                 showDeleteAlertDialog = false
                 viewModel.selectedBook = null
             },
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Warning,
+                    contentDescription = "Delete All",
+                )
+            },
             title = {
-                Text(text = "Delete ${viewModel.selectedBook?.title}")
+                Text(text = "Delete ${viewModel.selectedBook?.title}?")
             },
             text = {
-                Text(text = "Are you sure you want to delete this book?")
+                Text(text = "This will permanently delete the book and all its entries.")
             },
             confirmButton = {
                 Button(
@@ -210,7 +217,12 @@ fun BookListScreen(
         ) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 112.dp)
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = 16.dp,
+                    end = 16.dp,
+                    bottom = 112.dp
+                )
             ) {
                 items(books) { book ->
                     BookListItem(
@@ -289,6 +301,11 @@ fun BookListItem(
                 Text(
                     text = "₹${book.bookAmount}",
                     style = MaterialTheme.typography.bodyMedium,
+                    color = if (book.bookAmount >= 0) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    },
                     maxLines = 1,
                 )
             }

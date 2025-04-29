@@ -24,8 +24,10 @@ class BookRepoImpl @Inject constructor(private val dao: BookDao) : BookRepositor
     }
 
     override suspend fun deleteBook(book: Book) {
-        //dao.deleteBook(book)
-        dao.deleteBookData(book)
+        /**
+         * only delete the book as we already have added rules to delete all entries if associated book is deleted
+         * */
+        dao.deleteBook(book)
     }
 
 }
