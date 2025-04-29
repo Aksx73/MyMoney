@@ -9,4 +9,6 @@ interface CategoryRepository {
     suspend fun updateCategory(category: Category)
     suspend fun deleteCategory(category: Category)
     fun getAllCategories(): Flow<List<Category>>
+    fun getActiveCategories(): Flow<List<Category>>
+    fun getInactiveCategories(): Flow<List<Category>>
 }

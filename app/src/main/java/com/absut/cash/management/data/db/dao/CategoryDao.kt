@@ -16,6 +16,12 @@ interface CategoryDao {
     @Query("SELECT * FROM category_table ORDER BY id ASC")
     fun getCategories(): Flow<List<Category>>
 
+    @Query("SELECT * FROM category_table WHERE isActive = 1 ORDER BY id ASC")
+    fun getActiveCategories(): Flow<List<Category>>
+
+    @Query("SELECT * FROM category_table WHERE isActive = 0 ORDER BY id ASC")
+    fun getInactiveCategories(): Flow<List<Category>>
+
     @Update
     suspend fun update(category: Category)
 

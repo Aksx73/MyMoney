@@ -14,6 +14,13 @@ class CategoryRepoImpl @Inject constructor(private val dao: CategoryDao): Catego
         return dao.getCategories()
     }
 
+    override fun getActiveCategories(): Flow<List<Category>> {
+        return dao.getActiveCategories()
+    }
+
+    override fun getInactiveCategories(): Flow<List<Category>> {
+        return dao.getInactiveCategories()
+    }
 
     override suspend fun updateCategory(category: Category) {
         return dao.update(category)

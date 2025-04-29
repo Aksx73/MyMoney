@@ -65,17 +65,37 @@ class CategoryListViewModel @Inject constructor(
         }
     }
 
+    fun updateCategoryStatus(category: Category, isActive: Boolean) = viewModelScope.launch {
+        try {
+            repository.updateCategory(category.copy(isActive = isActive))
+            _uiMessage.emit("Category marked as ${if (isActive) "active" else "inactive"}")
+        } catch (e: Exception) {
+            _uiMessage.emit("Failed to mark category as ${if (isActive) "active" else "inactive"}")
+        }
+    }
+
     fun clearUiMessage() = viewModelScope.launch {
         _uiMessage.emit(null)
     }
 
     fun getCategories() = viewModelScope.launch {
         _isLoading.value = true
-        repository.getAllCategories()
-            .collect { categories ->
-                _categories.value = categories
-                _isLoading.value = false
-            }
+        val categoriesFlow = if (_showInactiveCategories.value) {
+            repository.getAllCategories()
+        } else {
+            repository.getActiveCategories()
+        }
+        //repository.getAllCategories()
+        categoriesFlow.collect { categories ->
+            _categories.value = categories
+            _isLoading.value = false
+        }
     }
 
+    private val _showInactiveCategories = MutableStateFlow(false)
+    val showInactiveCategories = _showInactiveCategories.asStateFlow()
+    fun toggleInactiveCategories() {
+        _showInactiveCategories.value = !_showInactiveCategories.value
+        getCategories() // Refresh list
+    }
 }

@@ -24,9 +24,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.TempleHindu
+import androidx.compose.material.icons.outlined.ToggleOff
+import androidx.compose.material.icons.outlined.ToggleOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
@@ -45,6 +48,7 @@ import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -79,6 +83,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Category
+import com.absut.cash.management.ui.CategoryListRoute
 import com.absut.cash.management.ui.component.IconPickerDropdownMenu
 import com.absut.cash.management.ui.component.StoredIcon
 
@@ -95,6 +100,7 @@ fun CategoryScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var showBottomSheet by remember { mutableStateOf(false) }
     var showDeleteAlertDialog by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiMessage) {
         uiMessage?.let {
@@ -143,10 +149,18 @@ fun CategoryScreen(
                 viewModel.selectedCategory = null
             },
             title = {
-                Text(text = "Delete Category")
+                Text(
+                    text = if (viewModel.selectedCategory?.isActive == true) {
+                        "Make category inactive?"
+                    } else {
+                        "Make category active?"
+                    }
+                )
             },
             text = {
-                Text(text = "Are you sure you want to delete this category?")
+                if (viewModel.selectedCategory?.isActive == true) {
+                    Text(text = "This action will make category as inactive and cannot be used for new transactions to maintain data integrity.")
+                } else null
             },
             confirmButton = {
                 Button(
@@ -156,12 +170,12 @@ fun CategoryScreen(
                     ),
                     onClick = {
                         viewModel.selectedCategory?.let { category ->
-                            viewModel.deleteCategory(category)
+                            viewModel.updateCategoryStatus(category, !category.isActive)
                         }
                         showDeleteAlertDialog = false
                         viewModel.selectedCategory = null
                     },
-                    content = { Text("Delete") }
+                    content = { Text("Confirm") }
                 )
             },
             dismissButton = {
@@ -188,6 +202,34 @@ fun CategoryScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "More options"
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    if (viewModel.showInactiveCategories.collectAsState().value) {
+                                        "Hide inactive categories"
+                                    } else {
+                                        "Show inactive categories"
+                                    }
+                                )
+                            },
+                            onClick = {
+                                showMenu = false
+                                viewModel.toggleInactiveCategories()
+                            },
                         )
                     }
                 }
@@ -273,7 +315,7 @@ fun CategoryListItem(
     var showMenu by remember { mutableStateOf(false) }
 
     ListItem(
-        modifier = modifier,
+        modifier = modifier.alpha(if (category.isActive) 1f else 0.5f),
         headlineContent = {
             Text(category.name)
         },
@@ -289,7 +331,7 @@ fun CategoryListItem(
             }) {
                 Icon(
                     imageVector = Icons.Filled.MoreVert,
-                    contentDescription = "Delete"
+                    contentDescription = "Options"
                 )
 
                 DropdownMenu(
@@ -310,16 +352,27 @@ fun CategoryListItem(
                         }
                     )
                     DropdownMenuItem(
-
-                        text = { Text("Delete") },
+                        text = {
+                            Text(
+                                if (category.isActive) {
+                                    "Mark Inactive"
+                                } else {
+                                    "Mark Active"
+                                }
+                            )
+                        },
                         onClick = {
                             onDelete(category)
                             showMenu = false
                         },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = "Delete"
+                                imageVector = if (category.isActive) {
+                                    Icons.Outlined.ToggleOn
+                                } else {
+                                    Icons.Outlined.ToggleOff
+                                },
+                                contentDescription = "Make Inactive"
                             )
                         }
                     )
@@ -453,6 +506,17 @@ private fun MainScreenPreview() {
 @Composable
 private fun ListItemPreview() {
     val category = Category(0, "Food")
+    Surface {
+        CategoryListItem(
+            category = category, modifier = Modifier.padding(16.dp),
+            onUpdate = {}, onDelete = {})
+    }
+}
+
+@Preview
+@Composable
+private fun ListItemPreview2() {
+    val category = Category(0, "Food", isActive = false)
     Surface {
         CategoryListItem(
             category = category, modifier = Modifier.padding(16.dp),
