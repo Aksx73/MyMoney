@@ -6,18 +6,24 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalance
+import androidx.compose.material.icons.outlined.AttachMoney
 import androidx.compose.material.icons.outlined.Attractions
 import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.BakeryDining
 import androidx.compose.material.icons.outlined.Book
+import androidx.compose.material.icons.outlined.CardGiftcard
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Chair
+import androidx.compose.material.icons.outlined.Cottage
 import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material.icons.outlined.CurrencyBitcoin
 import androidx.compose.material.icons.outlined.Diamond
 import androidx.compose.material.icons.outlined.DirectionsBus
+import androidx.compose.material.icons.outlined.Diversity1
 import androidx.compose.material.icons.outlined.Fastfood
+import androidx.compose.material.icons.outlined.Flare
 import androidx.compose.material.icons.outlined.Handyman
+import androidx.compose.material.icons.outlined.House
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.LocalBar
 import androidx.compose.material.icons.outlined.LocalGasStation
@@ -36,7 +42,10 @@ import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.SimCard
 import androidx.compose.material.icons.outlined.SmokingRooms
+import androidx.compose.material.icons.outlined.SportsBasketball
 import androidx.compose.material.icons.outlined.SportsEsports
+import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material.icons.outlined.VolunteerActivism
 import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
@@ -53,6 +62,7 @@ import com.absut.cash.management.ui.icon.MyIcons
 import com.absut.cash.management.ui.icon.outlined.Apparel
 import com.absut.cash.management.ui.icon.outlined.Dentistry
 import com.absut.cash.management.ui.icon.outlined.Exercise
+import com.absut.cash.management.ui.icon.outlined.Grocery
 import com.absut.cash.management.ui.icon.outlined.Monitoring
 import com.absut.cash.management.ui.icon.outlined.Pill
 import com.absut.cash.management.ui.icon.outlined.Scooter
@@ -113,11 +123,8 @@ enum class StoredIcon(
     CHAIR(Icons.Outlined.Chair, 3),
     EXERCISE(MyIcons.Outlined.Exercise, 4),
     FASTFOOD(Icons.Outlined.Fastfood, 5),
-    RESTAURANT(Icons.Outlined.Restaurant, 17),
-    BAKERY_DINING(Icons.Outlined.BakeryDining, 37),
+    GROCERY(MyIcons.Outlined.Grocery, 41),
     DIRECTIONS_BUS(Icons.Outlined.DirectionsBus, 6),
-    LOCAL_TAXI(Icons.Outlined.LocalTaxi, 35),
-    SCOOTER(MyIcons.Outlined.Scooter, 36),
     HANDYMAN(Icons.Outlined.Handyman, 7),
     LANGUAGE(Icons.Outlined.Language, 8),
     LOCAL_BAR(Icons.Outlined.LocalBar, 9),
@@ -128,6 +135,7 @@ enum class StoredIcon(
     PHISHING(Icons.Outlined.Phishing, 14),
     PILL(MyIcons.Outlined.Pill, 15),
     TRANSACTION(Icons.Outlined.ReceiptLong, 16),
+    RESTAURANT(Icons.Outlined.Restaurant, 17),
     SCHOOL(Icons.Outlined.School, 18),
     SELF_CARE(MyIcons.Outlined.SelfCare, 19),
     SHOPPING_CART(Icons.Outlined.ShoppingCart, 20),
@@ -145,9 +153,21 @@ enum class StoredIcon(
     HOSPITAL(Icons.Outlined.LocalHospital, 32),
     DENTISTRY(MyIcons.Outlined.Dentistry, 33),
     DIAMOND(Icons.Outlined.Diamond, 34),
-    MOVIE(Icons.Outlined.Movie, 35),
-    PERCENT(Icons.Outlined.Percent, 36),
-    AUTORENEW(Icons.Outlined.Autorenew, 37);
+    LOCAL_TAXI(Icons.Outlined.LocalTaxi, 35),
+    SCOOTER(MyIcons.Outlined.Scooter, 36),
+    BAKERY_DINING(Icons.Outlined.BakeryDining, 37),
+    MOVIE(Icons.Outlined.Movie, 38),
+    PERCENT(Icons.Outlined.Percent, 39),
+    AUTORENEW(Icons.Outlined.Autorenew, 40),
+    HOUSE(Icons.Outlined.Cottage, 41),
+    SPORTS_BASKETBALL(Icons.Outlined.SportsBasketball, 42),
+    GIFT(Icons.Outlined.CardGiftcard, 43),
+    FAMILY(Icons.Outlined.Diversity1, 44),
+    MONEY(Icons.Outlined.AttachMoney, 45),
+    TRANSFER(Icons.Outlined.SwapHoriz, 46),
+    PERSONAL_CARE(Icons.Outlined.VolunteerActivism, 47),
+    MISCELLANEOUS(Icons.Outlined.Flare, 48),
+    ;
 
     companion object {
 

@@ -9,6 +9,7 @@ import com.absut.cash.management.data.repository.CategoryRepository
 import com.absut.cash.management.data.repository.EntryRepoImpl
 import com.absut.cash.management.data.repository.EntryRepository
 import com.absut.cash.management.data.db.AccountDatabase
+import com.absut.cash.management.data.db.DatabaseCallback
 import com.absut.cash.management.data.db.dao.BookDao
 import com.absut.cash.management.data.db.dao.CategoryDao
 import com.absut.cash.management.data.db.dao.EntryDao
@@ -18,6 +19,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -26,15 +30,23 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesAccountDatabase(@ApplicationContext appContext: Context): AccountDatabase {
+    fun provideDatabase(
+        @ApplicationContext appContext: Context,
+        callback: DatabaseCallback
+    ): AccountDatabase {
         return Room.databaseBuilder(
             appContext,
             AccountDatabase::class.java,
             Constants.DATABASE_NAME
         )
-            .fallbackToDestructiveMigration(true)
+            .addCallback(callback)
             .build()
     }
+
+    @ApplicationScope
+    @Provides
+    @Singleton
+    fun provideApplicationScope() = CoroutineScope(SupervisorJob())
 
     @Provides
     @Singleton
@@ -68,7 +80,15 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideEntryRepository(entryDao: EntryDao, bookDao: BookDao, categoryDao: CategoryDao): EntryRepository {
+    fun provideEntryRepository(
+        entryDao: EntryDao,
+        bookDao: BookDao,
+        categoryDao: CategoryDao
+    ): EntryRepository {
         return EntryRepoImpl(entryDao, bookDao, categoryDao)
     }
 }
+
+@Retention(AnnotationRetention.RUNTIME)
+@Qualifier
+annotation class ApplicationScope
