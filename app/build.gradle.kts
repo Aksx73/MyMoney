@@ -81,7 +81,12 @@ dependencies {
     ksp("androidx.room:room-compiler:2.7.1")
     implementation("androidx.room:room-ktx:2.7.1")
 
+    testImplementation("androidx.room:room-testing:2.7.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("com.google.truth:truth:1.4.4")
+    testImplementation("com.google.truth:truth:1.4.4")
+    implementation("androidx.test.ext:junit-ktx:1.2.1")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     testImplementation(composeBom)

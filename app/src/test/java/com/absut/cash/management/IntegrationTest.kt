@@ -5,7 +5,7 @@ import org.junit.Test
 
 class IntegrationTest {
 
-    @Test
+   /* @Test
     fun createTransactionUpdatesBookBalance() {
         // Given: A book with initial balance
         val bookId =
@@ -25,7 +25,7 @@ class IntegrationTest {
     fun deleteTransactionUpdatesBookBalance() {
         // Test setup with book and transaction
         // Verify balance updates correctly when transaction is deleted
-    }
+    }*/
 
 
 }

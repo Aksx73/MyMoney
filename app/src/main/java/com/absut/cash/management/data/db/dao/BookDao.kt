@@ -20,7 +20,7 @@ interface BookDao {
     fun getBookById(bookId: Int): Flow<Book>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addBook(book: Book)
+    suspend fun addBook(book: Book) : Long
 
     @Update
     suspend fun updateBook(book: Book)
