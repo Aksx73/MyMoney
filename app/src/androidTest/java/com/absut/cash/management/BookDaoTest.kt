@@ -100,18 +100,4 @@ class BookDaoTest {
         Truth.assertThat(allBooks).doesNotContain(book)
     }
 
-    /*@Test
-    fun calculateBookBalance() {
-        // Given: A book with cash-in and cash-out transactions
-        val cashIn = 1000
-        val cashOut = 400
-
-        // When: Calculating the balance
-        val balance = bookViewModel.calculateBalance(cashIn, cashOut)
-
-        // Then: The balance should be correctly calculated
-        assertEquals(600, balance)
-    }*/
-
-
 }

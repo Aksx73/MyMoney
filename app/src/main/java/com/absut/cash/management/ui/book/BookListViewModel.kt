@@ -1,4 +1,4 @@
-package com.absut.cash.management.ui.booklist
+package com.absut.cash.management.ui.book
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

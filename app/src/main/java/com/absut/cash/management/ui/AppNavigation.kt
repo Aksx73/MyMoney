@@ -6,10 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.absut.cash.management.ui.booklist.BookListScreen
-import com.absut.cash.management.ui.booklist.BookListViewModel
-import com.absut.cash.management.ui.categoryList.CategoryListViewModel
-import com.absut.cash.management.ui.categoryList.CategoryScreen
+import com.absut.cash.management.ui.book.BookListScreen
+import com.absut.cash.management.ui.book.BookListViewModel
+import com.absut.cash.management.ui.category.CategoryListViewModel
+import com.absut.cash.management.ui.category.CategoryScreen
 import com.absut.cash.management.ui.entrylist.AddUpdateEntryScreen
 import com.absut.cash.management.ui.entrylist.EntryType
 import com.absut.cash.management.ui.entrylist.EntryListScreen

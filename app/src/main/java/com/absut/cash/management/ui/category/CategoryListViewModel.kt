@@ -1,4 +1,4 @@
-package com.absut.cash.management.ui.categoryList
+package com.absut.cash.management.ui.category
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

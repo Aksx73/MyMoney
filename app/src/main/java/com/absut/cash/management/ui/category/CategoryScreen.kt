@@ -1,4 +1,4 @@
-package com.absut.cash.management.ui.categoryList
+package com.absut.cash.management.ui.category
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
