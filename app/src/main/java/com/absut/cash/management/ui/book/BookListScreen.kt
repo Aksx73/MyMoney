@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -29,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -40,16 +42,21 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,8 +67,17 @@ import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Book
 import com.absut.cash.management.ui.CategoryListRoute
 import com.absut.cash.management.ui.EntryListRoute
+import com.absut.cash.management.ui.component.SnackbarHostWithController
+import dev.chrisbanes.haze.HazeProgressive
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
+import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
 @Composable
 fun BookListScreen(
     modifier: Modifier = Modifier,
@@ -74,7 +90,10 @@ fun BookListScreen(
     val uiMessage by viewModel.uiMessage.collectAsState(initial = null)
     val snackbarHostState = remember { SnackbarHostState() }
     var showDeleteAlertDialog by remember { mutableStateOf(false) }
-
+    var countdown by remember { mutableStateOf(5) }
+    var isDeleteEnabled by remember { mutableStateOf(false) }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    //val hazeState = remember { HazeState() }
 
     //to show bottom sheet
     if (showAddBookBottomSheet) {
@@ -112,6 +131,18 @@ fun BookListScreen(
     }
 
     if (showDeleteAlertDialog) {
+
+        // Start countdown when dialog shows
+        LaunchedEffect(Unit) {
+            countdown = 5
+            isDeleteEnabled = false
+            repeat(5) {
+                delay(1000)
+                countdown--
+            }
+            isDeleteEnabled = true
+        }
+
         AlertDialog(
             onDismissRequest = {
                 showDeleteAlertDialog = false
@@ -142,7 +173,13 @@ fun BookListScreen(
                         showDeleteAlertDialog = false
                         viewModel.selectedBook = null
                     },
-                    content = { Text("Delete") }
+                    enabled = isDeleteEnabled,
+                    content = {
+                        Text(
+                            if (!isDeleteEnabled) "Delete ($countdown)"
+                            else "Delete"
+                        )
+                    }
                 )
             },
             dismissButton = {
@@ -162,6 +199,7 @@ fun BookListScreen(
 
     //main content
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text("Your Books") },
@@ -190,7 +228,12 @@ fun BookListScreen(
                             }
                         )
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
+                /*colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
+                 modifier = Modifier
+                    .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())
+                    .fillMaxWidth()*/
             )
         },
         floatingActionButton = {
@@ -204,36 +247,35 @@ fun BookListScreen(
                 )
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHostWithController(snackbarHostState) }
     ) { contentPadding ->
-        Column(
-            modifier = modifier
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                top = 16.dp,
+                end = 16.dp,
+                bottom = 112.dp
+            ),
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
+                //.hazeSource(hazeState),
         ) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    top = 16.dp,
-                    end = 16.dp,
-                    bottom = 112.dp
+            items(books, key = { it.id }) { book ->
+                BookListItem(
+                    book = book,
+                    onBookClick = { navController.navigate(EntryListRoute(bookId = book.id)) },
+                    onEdit = {
+                        viewModel.selectedBook = book
+                        showAddBookBottomSheet = true
+                    },
+                    onDelete = {
+                        viewModel.selectedBook = book
+                        showDeleteAlertDialog = true
+                    },
+                    modifier = Modifier.animateItem(),
                 )
-            ) {
-                items(books) { book ->
-                    BookListItem(
-                        book = book,
-                        onBookClick = { navController.navigate(EntryListRoute(bookId = book.id)) },
-                        onEdit = {
-                            viewModel.selectedBook = book
-                            showAddBookBottomSheet = true
-                        },
-                        onDelete = {
-                            viewModel.selectedBook = book
-                            showDeleteAlertDialog = true
-                        }
-                    )
-                }
             }
         }
     }
@@ -275,8 +317,8 @@ fun BookListItem(
 
     OutlinedCard(
         onClick = { onBookClick(book) },
-        modifier = modifier
-            .fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(

@@ -1,5 +1,7 @@
 package com.absut.cash.management.ui.entrylist
 
+import android.graphics.drawable.shapes.Shape
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,6 +28,7 @@ import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,6 +58,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -62,6 +67,7 @@ import com.absut.cash.management.data.model.Category
 import com.absut.cash.management.data.model.Entry
 import com.absut.cash.management.data.model.EntryWithCategory
 import com.absut.cash.management.ui.AddUpdateEntryRoute
+import com.absut.cash.management.ui.component.SnackbarHostWithController
 import com.absut.cash.management.ui.component.TextWithBackground
 import com.absut.cash.management.util.toEntryType
 
@@ -270,7 +276,7 @@ fun EntryListScreen(
                 }
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHostWithController(snackbarHostState) }
     ) { contentPadding ->
         Column(
             modifier = Modifier
@@ -360,7 +366,7 @@ fun EntryListScreen(
 
 @Composable
 fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
-    OutlinedCard(modifier = modifier.padding(16.dp)) {
+    Card(modifier = modifier.padding(16.dp), shape = RoundedCornerShape(16.dp)) {
         Column(Modifier.padding(vertical = 16.dp)) {
             Row(Modifier.fillMaxWidth()) {
                 Text(
@@ -375,6 +381,7 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                 Text(
                     text = "₹${b?.bookAmount ?: 0}",
                     style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                     ),
                     color = if ((b?.bookAmount ?: 0) >= 0) {
@@ -410,6 +417,7 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 16.dp),
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -437,6 +445,7 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EntryListContent(
     modifier: Modifier = Modifier,
@@ -449,15 +458,13 @@ fun EntryListContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(16.dp)
         ) {
-            items(entries) { entry ->
+            items(items = entries, key = { it.entry.id }) { entry ->
                 EntryListItem(
                     entry = entry,
-                    onUpdate = {
-                        onUpdate(entry)
-                    },
-                    onDelete = {
-                        onDelete(entry)
-                    })
+                    onUpdate = { onUpdate(entry) },
+                    onDelete = { onDelete(entry) },
+                    modifier = Modifier.animateItem(),
+                )
             }
         }
     }
@@ -472,7 +479,7 @@ fun EntryListItem(
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
-    OutlinedCard(modifier = modifier) {
+    OutlinedCard(modifier = modifier, shape = RoundedCornerShape(16.dp)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

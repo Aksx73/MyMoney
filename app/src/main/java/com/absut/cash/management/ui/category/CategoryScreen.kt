@@ -42,7 +42,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,6 +58,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,6 +68,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Category
 import com.absut.cash.management.ui.component.IconPickerDropdownMenu
+import com.absut.cash.management.ui.component.SnackbarHostWithController
 import com.absut.cash.management.ui.component.StoredIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +85,7 @@ fun CategoryScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     var showDeleteAlertDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     LaunchedEffect(uiMessage) {
         uiMessage?.let {
@@ -174,6 +179,7 @@ fun CategoryScreen(
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text("Categories") },
@@ -212,7 +218,8 @@ fun CategoryScreen(
                             },
                         )
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
@@ -225,7 +232,7 @@ fun CategoryScreen(
                 )
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHostWithController(snackbarHostState) }
     ) { contentPadding ->
         when {
             isLoading -> {
@@ -244,7 +251,7 @@ fun CategoryScreen(
                         .padding(contentPadding),
                     contentPadding = PaddingValues(bottom = 112.dp) // Add bottom padding for FAB
                 ) {
-                    items(categories) { category ->
+                    items(categories, key = {it.id}) { category ->
                         CategoryListItem(
                             category,
                             onUpdate = {
@@ -254,7 +261,8 @@ fun CategoryScreen(
                             onDelete = {
                                 viewModel.selectedCategory = category
                                 showDeleteAlertDialog = true
-                            }
+                            },
+                            modifier = Modifier.animateItem(),
                         )
                     }
                 }

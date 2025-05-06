@@ -35,7 +35,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,6 +51,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -60,6 +63,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.R
 import com.absut.cash.management.data.model.Entry
+import com.absut.cash.management.ui.component.SnackbarHostWithController
 import com.absut.cash.management.ui.component.StoredIcon
 import com.absut.cash.management.util.getFormattedDate
 
@@ -131,6 +135,8 @@ fun AddUpdateEntryScreen(
     val uiMessage by viewModel.uiMessage.collectAsState(initial = null)
     val snackbarHostState = remember { SnackbarHostState() }
     var saveInProgress by remember { mutableStateOf(false) }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
 
     LaunchedEffect(true) {
         viewModel.getCategories()
@@ -174,6 +180,7 @@ fun AddUpdateEntryScreen(
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text("New Transaction") },
@@ -184,7 +191,8 @@ fun AddUpdateEntryScreen(
                             contentDescription = "Back"
                         )
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
         bottomBar = {
@@ -222,7 +230,7 @@ fun AddUpdateEntryScreen(
                 Text("Save")
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHostWithController(snackbarHostState) }
     ) { contentPadding ->
         Column(
             modifier = Modifier
