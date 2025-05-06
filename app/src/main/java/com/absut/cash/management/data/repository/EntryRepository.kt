@@ -14,7 +14,7 @@ interface EntryRepository {
 
     fun getAllEntriesWithCategory(bookId: Int) : Flow<List<EntryWithCategory>>
 
-    fun getBookDetails(bookId: Int) : Flow<Book>
+    fun getBookDetails(bookId: Int) : Flow<Book?>
 
     suspend fun updateEntry(entry: Entry)
 

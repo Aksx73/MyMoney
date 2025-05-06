@@ -19,7 +19,7 @@ class EntryRepoImpl @Inject constructor(
         return dao.addEntry(entry)
     }
 
-    override fun getBookDetails(bookId: Int): Flow<Book> {
+    override fun getBookDetails(bookId: Int): Flow<Book?> {
         return bookDao.getBookById(bookId)
     }
 
