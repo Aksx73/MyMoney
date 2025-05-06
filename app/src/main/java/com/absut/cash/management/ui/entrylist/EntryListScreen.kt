@@ -1,6 +1,7 @@
 package com.absut.cash.management.ui.entrylist
 
 import android.graphics.drawable.shapes.Shape
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -366,7 +368,11 @@ fun EntryListScreen(
 
 @Composable
 fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
-    Card(modifier = modifier.padding(16.dp), shape = RoundedCornerShape(16.dp)) {
+    Card(
+        modifier = modifier.padding(16.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = CardDefaults.outlinedCardBorder()
+    ) {
         Column(Modifier.padding(vertical = 16.dp)) {
             Row(Modifier.fillMaxWidth()) {
                 Text(

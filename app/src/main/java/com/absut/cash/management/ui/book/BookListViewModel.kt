@@ -1,5 +1,6 @@
 package com.absut.cash.management.ui.book
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.absut.cash.management.data.model.Book
@@ -21,6 +22,8 @@ class BookListViewModel @Inject constructor(
 
     private val _uiMessage = MutableSharedFlow<String?>()
     val uiMessage = _uiMessage.asSharedFlow()
+
+    val isLoading = mutableStateOf(false)
 
     var selectedBook: Book? = null
 
@@ -50,9 +53,11 @@ class BookListViewModel @Inject constructor(
     }
 
     fun getAllBooks() = viewModelScope.launch {
+        isLoading.value = true
         repository.getAllBooks()
             .collect { books ->
                 _books.value = books
+                isLoading.value = false
             }
     }
 
