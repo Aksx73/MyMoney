@@ -237,7 +237,7 @@ fun BookListScreen(
                         )
                     }
                 },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
                 /*colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                  modifier = Modifier
                     .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())

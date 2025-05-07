@@ -81,6 +81,9 @@ dependencies {
     ksp("androidx.room:room-compiler:2.7.1")
     implementation("androidx.room:room-ktx:2.7.1")
 
+    implementation("dev.chrisbanes.haze:haze:1.5.4")
+    implementation("dev.chrisbanes.haze:haze-materials:1.5.4")
+
     testImplementation("androidx.room:room-testing:2.7.1")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")

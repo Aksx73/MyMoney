@@ -57,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
@@ -71,6 +72,10 @@ import com.absut.cash.management.ui.component.FullScreenLoader
 import com.absut.cash.management.ui.component.IconPickerDropdownMenu
 import com.absut.cash.management.ui.component.SnackbarHostWithController
 import com.absut.cash.management.ui.component.StoredIcon
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.materials.HazeMaterials
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,6 +92,8 @@ fun CategoryScreen(
     var showDeleteAlertDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val hazeState = remember { HazeState() }
+
 
     LaunchedEffect(uiMessage) {
         uiMessage?.let {
@@ -180,7 +187,7 @@ fun CategoryScreen(
     }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        //modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text("Categories") },
@@ -220,7 +227,11 @@ fun CategoryScreen(
                         )
                     }
                 },
-                scrollBehavior = scrollBehavior
+                //scrollBehavior = scrollBehavior,
+                colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
+                 modifier = Modifier
+                    .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())
+                    .fillMaxWidth()
             )
         },
         floatingActionButton = {
@@ -241,6 +252,7 @@ fun CategoryScreen(
             categories.isNotEmpty() -> {
                 LazyColumn(
                     modifier = Modifier
+                        .hazeSource(hazeState)
                         .padding(contentPadding),
                     contentPadding = PaddingValues(bottom = 112.dp) // Add bottom padding for FAB
                 ) {
