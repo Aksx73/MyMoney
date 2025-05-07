@@ -67,6 +67,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Category
+import com.absut.cash.management.ui.component.FullScreenLoader
 import com.absut.cash.management.ui.component.IconPickerDropdownMenu
 import com.absut.cash.management.ui.component.SnackbarHostWithController
 import com.absut.cash.management.ui.component.StoredIcon
@@ -235,15 +236,7 @@ fun CategoryScreen(
         snackbarHost = { SnackbarHostWithController(snackbarHostState) }
     ) { contentPadding ->
         when {
-            isLoading -> {
-                Column(
-                    Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    LinearProgressIndicator()
-                }
-            }
+            isLoading -> { FullScreenLoader() }
 
             categories.isNotEmpty() -> {
                 LazyColumn(
@@ -390,7 +383,7 @@ fun AddCategoryBottomSheet(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "New Category",
+            text = if (category == null)"New Category" else "Edit Category",
             style = MaterialTheme.typography.titleLarge,
         )
 

@@ -247,7 +247,7 @@ fun BookListScreen(
         floatingActionButton = {
             LargeFloatingActionButton(
                 onClick = {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     showAddBookBottomSheet = true
                 },
             ) {
@@ -295,7 +295,7 @@ fun BookListScreen(
                 }
             }
 
-            else -> {
+            else -> { //empty state
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -447,7 +447,7 @@ fun AddBookBottomSheet(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Add New Book",
+            text = if (book == null)"Add New Book" else "Edit Book",
             style = MaterialTheme.typography.titleLarge,
         )
 

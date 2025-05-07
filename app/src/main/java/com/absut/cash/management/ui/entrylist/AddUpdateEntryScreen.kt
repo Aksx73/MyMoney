@@ -183,7 +183,7 @@ fun AddUpdateEntryScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text("New Transaction") },
+                title = { Text(if (entryId == null) "New Transaction" else "Edit Transaction") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -244,7 +244,7 @@ fun AddUpdateEntryScreen(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .alpha(if (entryId == null) 1f else 0.6f), // Make it look disabled
+                    //.alpha(if (entryId == null) 1f else 0.6f), // Make it look disabled
             ) {
                 transactionTypeOptions.forEachIndexed { index, label ->
                     SegmentedButton(
@@ -262,7 +262,7 @@ fun AddUpdateEntryScreen(
                             EntryType.CASH_OUT -> index == 1
                         },
                         label = { Text(label) },
-                        enabled = entryId == null,
+                        //enabled = entryId == null,
                         icon = {
                             Icon(
                                 painterResource(if (index == 0) R.drawable.ic_trending_up_24 else R.drawable.ic_trending_down_24),
