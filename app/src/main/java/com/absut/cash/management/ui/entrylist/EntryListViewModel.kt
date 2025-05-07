@@ -10,6 +10,7 @@ import com.absut.cash.management.data.model.EntryWithCategory
 import com.absut.cash.management.data.repository.BookRepository
 import com.absut.cash.management.data.repository.EntryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -43,7 +44,7 @@ class EntryListViewModel @Inject constructor(
 
     var selectedEntry: EntryWithCategory? = null
 
-    fun getBookFromId(bookId: Int) = viewModelScope.launch {
+    fun getBookFromId(bookId: Int) = viewModelScope.launch(Dispatchers.IO) {
         repository.getBookDetails(bookId)
             .collect { book ->
                 _book.value = book
@@ -57,7 +58,7 @@ class EntryListViewModel @Inject constructor(
             }
     }*/
 
-    fun getEntriesOfBook(bookId: Int) = viewModelScope.launch {
+    fun getEntriesOfBook(bookId: Int) = viewModelScope.launch(Dispatchers.IO) {
         isLoading.value = true
         repository.getAllEntriesWithCategory(bookId)
             .collect { entries ->
@@ -66,7 +67,7 @@ class EntryListViewModel @Inject constructor(
             }
     }
 
-    fun deleteEntry(entry: Entry) = viewModelScope.launch {
+    fun deleteEntry(entry: Entry) = viewModelScope.launch(Dispatchers.IO) {
         try {
             repository.deleteEntry(entry)
             updateBooKAmountOnEntryDelete(entry)
@@ -76,7 +77,7 @@ class EntryListViewModel @Inject constructor(
         }
     }
 
-    fun deleteAllEntries(bookId: Int) = viewModelScope.launch {
+    fun deleteAllEntries(bookId: Int) = viewModelScope.launch(Dispatchers.IO) {
         try {
             repository.deleteAllEntries(bookId)
             updateBooKAmountOnAllEntryDelete()
@@ -90,7 +91,7 @@ class EntryListViewModel @Inject constructor(
     }
 
     fun addEntry(entry: Entry) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 // Validate foreign keys before inserting
                 if (entry.bookId <= 0) {
@@ -106,7 +107,7 @@ class EntryListViewModel @Inject constructor(
         }
     }
 
-    fun updateEntry(entry: Entry) = viewModelScope.launch {
+    fun updateEntry(entry: Entry) = viewModelScope.launch(Dispatchers.IO){
         try {
             repository.updateEntry(entry)
             updateBookAmountsForEdit(selectedEntry?.entry!!, entry)
@@ -120,7 +121,7 @@ class EntryListViewModel @Inject constructor(
     val defaultCategory = Category(0, "None", 0)
     private val _categories = MutableStateFlow<List<Category>>(emptyList())
     val categories = _categories.asStateFlow()
-    fun getCategories() = viewModelScope.launch {
+    fun getCategories() = viewModelScope.launch(Dispatchers.IO) {
         repository.getCategories()
             .collect { categories ->
                 _categories.value = listOf(defaultCategory) + categories
@@ -143,7 +144,7 @@ class EntryListViewModel @Inject constructor(
             }
             updatedBook.bookAmount = updatedBook.cashIn.minus(updatedBook.cashOut)
 
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 try {
                     bookRepository.updateBook(updatedBook)
                     _entryAddUpdateSuccess.value = true
@@ -188,7 +189,7 @@ class EntryListViewModel @Inject constructor(
             // Update final book amount
             updatedBook.bookAmount = updatedBook.cashIn - updatedBook.cashOut
 
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 try {
                     bookRepository.updateBook(updatedBook)
                     _entryAddUpdateSuccess.value = true
@@ -216,7 +217,7 @@ class EntryListViewModel @Inject constructor(
             }
             updatedBook.bookAmount = updatedBook.cashIn.minus(updatedBook.cashOut)
 
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 try {
                     bookRepository.updateBook(updatedBook)
                     _uiMessage.emit("Entry deleted successfully")
@@ -234,7 +235,7 @@ class EntryListViewModel @Inject constructor(
                 cashOut = 0,
                 bookAmount = 0
             )
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 try {
                     bookRepository.updateBook(updatedBook)
                     _uiMessage.emit("All entries deleted successfully")

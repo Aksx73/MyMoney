@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.absut.cash.management.data.model.Book
 import com.absut.cash.management.data.repository.BookRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -32,7 +33,7 @@ class BookListViewModel @Inject constructor(
     }
 
     fun addBook(book: Book) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val existingCategory = _books.value.find {
                     it.title.equals(book.title, ignoreCase = true)
@@ -52,7 +53,7 @@ class BookListViewModel @Inject constructor(
         }
     }
 
-    fun getAllBooks() = viewModelScope.launch {
+    fun getAllBooks() = viewModelScope.launch(Dispatchers.IO) {
         isLoading.value = true
         repository.getAllBooks()
             .collect { books ->
@@ -73,7 +74,7 @@ class BookListViewModel @Inject constructor(
     }
 
     fun updateBookTitle(bookId: Int, title: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.updateBookTitle(bookId, title)
                 _uiMessage.emit("Book renamed successfully")
@@ -84,7 +85,7 @@ class BookListViewModel @Inject constructor(
     }
 
     fun deleteBook(book: Book) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.deleteBook(book)
                 _uiMessage.emit("Book deleted successfully")

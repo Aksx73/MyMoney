@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.absut.cash.management.data.model.Category
 import com.absut.cash.management.data.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -29,7 +30,7 @@ class CategoryListViewModel @Inject constructor(
     var selectedCategory: Category? = null
 
     fun addCategory(category: Category) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val existingCategory = _categories.value.find {
                     it.name.equals(category.name, ignoreCase = true)
@@ -52,7 +53,7 @@ class CategoryListViewModel @Inject constructor(
         }
     }
 
-    fun deleteCategory(category: Category) = viewModelScope.launch {
+    fun deleteCategory(category: Category) = viewModelScope.launch(Dispatchers.IO) {
         try {
             repository.deleteCategory(category)
             _uiMessage.emit("Category deleted successfully")
@@ -61,7 +62,7 @@ class CategoryListViewModel @Inject constructor(
         }
     }
 
-    fun updateCategoryStatus(category: Category, isActive: Boolean) = viewModelScope.launch {
+    fun updateCategoryStatus(category: Category, isActive: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         try {
             repository.updateCategory(category.copy(isActive = isActive))
             _uiMessage.emit("Category marked as ${if (isActive) "active" else "inactive"}")
@@ -74,7 +75,7 @@ class CategoryListViewModel @Inject constructor(
         _uiMessage.emit(null)
     }
 
-    fun getCategories() = viewModelScope.launch {
+    fun getCategories() = viewModelScope.launch(Dispatchers.IO) {
         _isLoading.value = true
         val categoriesFlow = if (_showInactiveCategories.value) {
             repository.getAllCategories()
