@@ -1,7 +1,5 @@
 package com.absut.cash.management.ui.entrylist
 
-import android.graphics.drawable.shapes.Shape
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.SyncAlt
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -41,7 +40,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,6 +67,7 @@ import com.absut.cash.management.data.model.Category
 import com.absut.cash.management.data.model.Entry
 import com.absut.cash.management.data.model.EntryWithCategory
 import com.absut.cash.management.ui.AddUpdateEntryRoute
+import com.absut.cash.management.ui.component.FullScreenLoader
 import com.absut.cash.management.ui.component.SnackbarHostWithController
 import com.absut.cash.management.ui.component.TextWithBackground
 import com.absut.cash.management.util.toEntryType
@@ -87,6 +86,7 @@ fun EntryListScreen(
     val entries by viewModel.entries.collectAsState()
     var showDeleteAlertDialog by remember { mutableStateOf(false) }
     var showDeleteAllAlertDialog by remember { mutableStateOf(false) }
+    val isLoading by viewModel.isLoading
 
     LaunchedEffect(bookId) {
         viewModel.getBookFromId(bookId)
@@ -296,69 +296,55 @@ fun EntryListScreen(
                 textAlign = TextAlign.Center,
             )
 
-            EntryListContent(
-                entries = entries,
-                modifier = Modifier.weight(1f, false),
-                onUpdate = { entry ->
-                    viewModel.selectedEntry = entry
-                    navController.navigate(
-                        AddUpdateEntryRoute(
-                            entryType = entry.entry.entryType.toEntryType(),
-                            bookId = entry.entry.bookId,
-                            entryId = entry.entry.id
-                        )
+            when {
+                isLoading -> {
+                    FullScreenLoader(
+                        modifier = Modifier.padding(contentPadding),
+                        loaderSize = 24.dp
                     )
-                },
-                onDelete = { entry ->
-                    viewModel.selectedEntry = entry
-                    showDeleteAlertDialog = true
                 }
-            )
 
-            /* Row(
-                 Modifier
-                     .fillMaxWidth()
-                     .padding(16.dp)
-                     .background(MaterialTheme.colorScheme.surface)
-             ) {
-                 Button(
-                     onClick = {
-                         navController.navigate(
-                             AddUpdateEntryRoute(
-                                 entryType = EntryType.CASH_IN,
-                                 bookId = bookId,
-                                 entryId = null
-                             )
-                         )
-                     },
-                     modifier = Modifier.weight(1f),
-                     colors = ButtonDefaults.buttonColors(
-                         containerColor = MaterialTheme.colorScheme.primary,
-                         contentColor = MaterialTheme.colorScheme.onPrimary
-                     )
-                 ) {
-                     Text("+ Cash In")
-                 }
-                 Spacer(Modifier.size(12.dp))
-                 Button(
-                     onClick = {
-                         navController.navigate(
-                             AddUpdateEntryRoute(
-                                 entryType = EntryType.CASH_OUT,
-                                 bookId = bookId,
-                                 entryId = null
-                             )
-                         )
-                     },
-                     modifier = Modifier.weight(1f),
-                     colors = ButtonDefaults.buttonColors(
-                         containerColor = MaterialTheme.colorScheme.error,
-                         contentColor = MaterialTheme.colorScheme.onError
-                     )
-                 ) {
-                     Text("- Cash Out")
-                 }
-             }*/
+                entries.isNotEmpty() -> {
+                    EntryListContent(
+                        entries = entries,
+                        modifier = Modifier.weight(1f, false),
+                        onUpdate = { entry ->
+                            viewModel.selectedEntry = entry
+                            navController.navigate(
+                                AddUpdateEntryRoute(
+                                    entryType = entry.entry.entryType.toEntryType(),
+                                    bookId = entry.entry.bookId,
+                                    entryId = entry.entry.id
+                                )
+                            )
+                        },
+                        onDelete = { entry ->
+                            viewModel.selectedEntry = entry
+                            showDeleteAlertDialog = true
+                        }
+                    )
+                }
+
+                else -> { //empty state
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(contentPadding),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.SyncAlt,
+                            contentDescription = null,
+                            modifier = Modifier.size(84.dp),
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        )
+                        Spacer(Modifier.size(8.dp))
+                        Text(text = "No entries found")
+                    }
+                }
+            }
+
 
         }
 

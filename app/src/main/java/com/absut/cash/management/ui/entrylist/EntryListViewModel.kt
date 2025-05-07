@@ -29,6 +29,8 @@ class EntryListViewModel @Inject constructor(
     private val _entries = MutableStateFlow<List<EntryWithCategory>>(emptyList())
     val entries = _entries.asStateFlow()
 
+    val isLoading = mutableStateOf(false)
+
     private val _uiMessage = MutableSharedFlow<String?>()
     val uiMessage = _uiMessage.asSharedFlow()
 
@@ -56,9 +58,11 @@ class EntryListViewModel @Inject constructor(
     }*/
 
     fun getEntriesOfBook(bookId: Int) = viewModelScope.launch {
+        isLoading.value = true
         repository.getAllEntriesWithCategory(bookId)
             .collect { entries ->
                 _entries.value = entries
+                isLoading.value = false
             }
     }
 
