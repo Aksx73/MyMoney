@@ -24,6 +24,9 @@ import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -39,6 +42,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -57,7 +62,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -66,6 +73,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.absut.cash.management.data.model.Book
@@ -261,11 +269,13 @@ fun BookListScreen(
         snackbarHost = { SnackbarHostWithController(snackbarHostState) }
     ) { contentPadding ->
         when {
-            isLoading -> { FullScreenLoader() }
+            isLoading -> {
+                FullScreenLoader()
+            }
 
             books.isNotEmpty() -> {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(
                         start = 16.dp,
                         top = 16.dp,
@@ -325,7 +335,7 @@ fun BookListContent(
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(16.dp)
         ) {
             items(books) { book ->
@@ -350,16 +360,19 @@ fun BookListItem(
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
-    OutlinedCard(
+    Card(
         onClick = { onBookClick(book) },
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp)
+        shape = ShapeDefaults.ExtraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(16.dp)
+                    .padding(24.dp)
             ) {
                 Text(
                     text = book.title,
@@ -432,6 +445,101 @@ fun BookListItem(
 }
 
 @Composable
+fun BookListItem2(
+    book: Book,
+    modifier: Modifier = Modifier,
+    onBookClick: (Book) -> Unit = {},
+    onEdit: (Book) -> Unit = {},
+    onDelete: (Book) -> Unit = {}
+) {
+    var showMenu by remember { mutableStateOf(false) }
+
+    Card(
+        onClick = { onBookClick(book) },
+        modifier = modifier.fillMaxWidth(),
+        shape = ShapeDefaults.ExtraLarge
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Book,
+                    contentDescription = "More options",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .alpha(0.3f)
+                )
+                Text(
+                    text = book.title,
+                    Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 56.sp
+                    ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 24.dp)
+            ) {
+            IconButton(
+                onClick = {
+                    showMenu = true
+                },
+                modifier = Modifier
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "More options",
+                )
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Rename") },
+                        onClick = {
+                            onEdit(book)
+                            showMenu = false
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Edit,
+                                contentDescription = "Rename"
+                            )
+                        }
+                    )
+                    DropdownMenuItem(
+
+                        text = { Text("Delete") },
+                        onClick = {
+                            onDelete(book)
+                            showMenu = false
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = "Delete Book"
+                            )
+                        }
+                    )
+                }
+            }
+                }
+
+            Spacer(Modifier.size(8.dp))
+        }
+    }
+}
+
+@Composable
 fun AddBookBottomSheet(
     onAddBook: (Int, String) -> Unit,
     modifier: Modifier = Modifier,
@@ -447,7 +555,7 @@ fun AddBookBottomSheet(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (book == null)"Add New Book" else "Edit Book",
+            text = if (book == null) "Add New Book" else "Edit Book",
             style = MaterialTheme.typography.titleLarge,
         )
 
@@ -526,6 +634,16 @@ private fun BookListItemPreview() {
     val book = Book(1, "Book 1", 1000, 1, 1)
     Surface {
         BookListItem(book = book, modifier = Modifier.padding(16.dp))
+    }
+
+}
+
+@Preview
+@Composable
+private fun BookListItem2Preview() {
+    val book = Book(1, "Book 1", 1000, 1, 1)
+    Surface {
+        BookListItem2(book = book, modifier = Modifier.padding(16.dp))
     }
 
 }

@@ -53,6 +53,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -193,7 +195,12 @@ fun EntryListScreen(
                 title = {
                     Column {
                         Text("Book Details", style = MaterialTheme.typography.titleLarge)
-                        Text(book?.title ?: "", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            book?.title ?: "",
+                            style = MaterialTheme.typography.titleSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                 },
                 navigationIcon = {
@@ -356,8 +363,15 @@ fun EntryListScreen(
 fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
     Card(
         modifier = modifier.padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        border = CardDefaults.outlinedCardBorder()
+        shape = ShapeDefaults.ExtraLarge,
+        //border = CardDefaults.outlinedCardBorder(),
+        /*border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f)
+        ),*/
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
     ) {
         Column(Modifier.padding(vertical = 16.dp)) {
             Row(Modifier.fillMaxWidth()) {
@@ -367,7 +381,7 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                         fontWeight = FontWeight.Bold,
                     ),
                     modifier = Modifier
-                        .padding(start = 16.dp),
+                        .padding(start = 20.dp),
                     fontWeight = FontWeight.Bold
                 )
                 Text(
@@ -384,14 +398,14 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                     textAlign = TextAlign.End,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 16.dp),
+                        .padding(end = 20.dp),
                     fontWeight = FontWeight.Bold
                 )
             }
 
             Spacer(Modifier.size(16.dp))
 
-            HorizontalDivider()
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f))
 
             Spacer(Modifier.size(16.dp))
 
@@ -400,7 +414,7 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                     text = "Net Cash In:",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
-                        .padding(start = 16.dp),
+                        .padding(start = 20.dp),
                 )
                 Text(
                     text = "₹${b?.cashIn ?: 0}",
@@ -408,7 +422,7 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                     textAlign = TextAlign.End,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 16.dp),
+                        .padding(end = 20.dp),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -420,7 +434,7 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                     text = "Net Cash Out:",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
-                        .padding(start = 16.dp),
+                        .padding(start = 20.dp),
 
                     )
                 Text(
@@ -429,7 +443,7 @@ fun SummaryCard(modifier: Modifier = Modifier, b: Book?) {
                     textAlign = TextAlign.End,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 16.dp),
+                        .padding(end = 20.dp),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -447,7 +461,7 @@ fun EntryListContent(
 ) {
     Column(modifier = modifier) {
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
             contentPadding = PaddingValues(16.dp)
         ) {
             items(items = entries, key = { it.entry.id }) { entry ->
@@ -471,7 +485,10 @@ fun EntryListItem(
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
-    OutlinedCard(modifier = modifier, shape = RoundedCornerShape(16.dp)) {
+    Card(
+        modifier = modifier,
+        shape = ShapeDefaults.ExtraLarge
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -487,7 +504,8 @@ fun EntryListItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextWithBackground(
                         text = entry.category?.name ?: "Uncategorized",
-                        enabled = entry.category?.isActive ?: true
+                        enabled = entry.category?.isActive ?: true,
+                        backgroundColor = MaterialTheme.colorScheme.surfaceContainer
                     )
                     Spacer(Modifier.size(8.dp))
                     Text(
@@ -526,7 +544,7 @@ fun EntryListItem(
                 )
                 IconButton(
                     onClick = { showMenu = true },
-                    modifier = Modifier
+                    modifier = Modifier.padding(end = 6.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.MoreVert,

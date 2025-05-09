@@ -15,9 +15,9 @@ fun SnackbarHostWithController(snackbarHostState: SnackbarHostState) {
         snackbar = { data ->
             Snackbar(
                 snackbarData = data,
-                shape = RoundedCornerShape(8.dp),
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                shape = RoundedCornerShape(16.dp),
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             )
         }
     )

@@ -1,6 +1,8 @@
 package com.absut.cash.management.ui.category
 
+import android.graphics.drawable.shapes.Shape
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -32,11 +35,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -55,6 +61,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -187,7 +194,7 @@ fun CategoryScreen(
     }
 
     Scaffold(
-        //modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text("Categories") },
@@ -227,11 +234,11 @@ fun CategoryScreen(
                         )
                     }
                 },
-                //scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
-                 modifier = Modifier
+                scrollBehavior = scrollBehavior,
+                /*colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
+                modifier = Modifier
                     .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())
-                    .fillMaxWidth()
+                    .fillMaxWidth()*/
             )
         },
         floatingActionButton = {
@@ -247,16 +254,24 @@ fun CategoryScreen(
         snackbarHost = { SnackbarHostWithController(snackbarHostState) }
     ) { contentPadding ->
         when {
-            isLoading -> { FullScreenLoader() }
+            isLoading -> {
+                FullScreenLoader()
+            }
 
             categories.isNotEmpty() -> {
                 LazyColumn(
                     modifier = Modifier
-                        .hazeSource(hazeState)
+                        //.hazeSource(hazeState)
                         .padding(contentPadding),
-                    contentPadding = PaddingValues(bottom = 112.dp) // Add bottom padding for FAB
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = PaddingValues(
+                        start = 12.dp,
+                        top = 12.dp,
+                        end = 12.dp,
+                        bottom = 116.dp
+                    ) // Add bottom padding for FAB
                 ) {
-                    items(categories, key = {it.id}) { category ->
+                    items(categories, key = { it.id }) { category ->
                         CategoryListItem(
                             category,
                             onUpdate = {
@@ -308,7 +323,12 @@ fun CategoryListItem(
     var showMenu by remember { mutableStateOf(false) }
 
     ListItem(
-        modifier = modifier.alpha(if (category.isActive) 1f else 0.5f),
+        modifier = modifier
+            .clip(shape = RoundedCornerShape(32.dp))
+            .alpha(if (category.isActive) 1f else 0.5f),
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        ),
         headlineContent = {
             Text(category.name)
         },
@@ -395,7 +415,7 @@ fun AddCategoryBottomSheet(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (category == null)"New Category" else "Edit Category",
+            text = if (category == null) "New Category" else "Edit Category",
             style = MaterialTheme.typography.titleLarge,
         )
 
