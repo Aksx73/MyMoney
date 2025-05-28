@@ -1,6 +1,7 @@
 package com.absut.cash.management.ui.entrylist
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -8,22 +9,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -34,6 +44,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
@@ -52,10 +64,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -72,7 +87,7 @@ enum class EntryType(val value: Int) {
     CASH_OUT(1)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AddUpdateEntryScreen(
     modifier: Modifier = Modifier,
@@ -136,7 +151,7 @@ fun AddUpdateEntryScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var saveInProgress by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-
+    val textMeasurer = rememberTextMeasurer()
 
     LaunchedEffect(true) {
         viewModel.getCategories()
@@ -240,38 +255,69 @@ fun AddUpdateEntryScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.size(8.dp))
-            SingleChoiceSegmentedButtonRow(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    //.alpha(if (entryId == null) 1f else 0.6f), // Make it look disabled
+
+            ButtonGroup(
+                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                expandedRatio = 0f,
             ) {
                 transactionTypeOptions.forEachIndexed { index, label ->
-                    SegmentedButton(
-                        shape = SegmentedButtonDefaults.itemShape(
-                            index = index,
-                            count = transactionTypeOptions.size
-                        ),
-                        onClick = {
-                            currentEntryType =
-                                if (index == 0) EntryType.CASH_IN else EntryType.CASH_OUT
-                            //save in viewmodel if needed
-                        },
-                        selected = when (currentEntryType) {
+                    ToggleButton(
+                        checked = when (currentEntryType) {
                             EntryType.CASH_IN -> index == 0
                             EntryType.CASH_OUT -> index == 1
                         },
-                        label = { Text(label) },
-                        //enabled = entryId == null,
-                        icon = {
-                            Icon(
-                                painterResource(if (index == 0) R.drawable.ic_trending_up_24 else R.drawable.ic_trending_down_24),
-                                contentDescription = label
-                            )
-                        }
-                    )
+                        onCheckedChange = {
+                            currentEntryType =
+                                if (index == 0) EntryType.CASH_IN else EntryType.CASH_OUT
+                        },
+                        shapes = if (index == 0) ButtonGroupDefaults.connectedLeadingButtonShapes() else ButtonGroupDefaults.connectedTrailingButtonShapes(),
+                        colors = ToggleButtonDefaults.toggleButtonColors(),
+                    ) {
+                        val textLayoutResult = textMeasurer.measure("M.MX", LocalTextStyle.current)
+                        val width = with(LocalDensity.current) { textLayoutResult.size.width.toDp() }
+
+                        Icon(
+                            painterResource(if (index == 0) R.drawable.ic_trending_up_24 else R.drawable.ic_trending_down_24),
+                            contentDescription = label
+                        )
+                        Spacer(Modifier.size(8.dp))
+                        Text(label, Modifier.widthIn(min = width), textAlign = TextAlign.Center)
+                    }
                 }
             }
+
+            /* SingleChoiceSegmentedButtonRow(
+                 Modifier
+                     .fillMaxWidth()
+                     .padding(horizontal = 16.dp)
+                 //.alpha(if (entryId == null) 1f else 0.6f), // Make it look disabled
+             ) {
+                 transactionTypeOptions.forEachIndexed { index, label ->
+                     SegmentedButton(
+                         shape = SegmentedButtonDefaults.itemShape(
+                             index = index,
+                             count = transactionTypeOptions.size
+                         ),
+                         onClick = {
+                             currentEntryType =
+                                 if (index == 0) EntryType.CASH_IN else EntryType.CASH_OUT
+                             //save in viewmodel if needed
+                         },
+                         selected = when (currentEntryType) {
+                             EntryType.CASH_IN -> index == 0
+                             EntryType.CASH_OUT -> index == 1
+                         },
+                         label = { Text(label) },
+                         //enabled = entryId == null,
+                         icon = {
+                             Icon(
+                                 painterResource(if (index == 0) R.drawable.ic_trending_up_24 else R.drawable.ic_trending_down_24),
+                                 contentDescription = label
+                             )
+                         }
+                     )
+                 }
+             }*/
 
             Spacer(Modifier.size(16.dp))
 
