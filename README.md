@@ -10,13 +10,13 @@ Personal Cash Flow Management on Android is a personal finance android applicati
 <thead>
 <tr>
 <th><a target="_blank" rel="noopener noreferrer" href="https://github.com/Aksx73/NutriVision/blob/master/screenshots/Screenshot_20251130-103949_MyMoney.png"><img src="https://github.com/Aksx73/MyMoney/blob/master/screenshots/Screenshot_20251130-103949_MyMoney.png?raw=true" alt="Home screen" style="max-width: 100%;"></a></th>
-<th><a target="_blank" rel="noopener noreferrer" href="https://github.com/Aksx73/NutriVision/blob/master/screenshots/Screenshot_20251130-103830_MyMoney.png"><img src="https://github.com/Aksx73/MyMoney/blob/master/screenshots/Screenshot_20251130-103830_MyMoney.png?raw=true" alt="Preview screen" style="max-width: 100%;"></a></th>
+<th><a target="_blank" rel="noopener noreferrer" href="https://github.com/Aksx73/NutriVision/blob/master/screenshots/Screenshot_20251130-103830_MyMoney.png"><img src="https://github.com/Aksx73/MyMoney/blob/master/screenshots/Screenshot_20251130-103830_MyMoney.png?raw=true" alt="Book detail screen" style="max-width: 100%;"></a></th>
 </tr>
 </thead>
 <thead>
 <tr>
-<th><a target="_blank" rel="noopener noreferrer" href="https://github.com/Aksx73/NutriVision/blob/master/screenshots/Screenshot_20251130-103843_MyMoney.png"><img src="https://github.com/Aksx73/MyMoney/blob/master/screenshots/Screenshot_20251130-103843_MyMoney.png?raw=true" alt="Result screen" style="max-width: 100%;"></a></th>
-<th><a target="_blank" rel="noopener noreferrer" href="https://github.com/Aksx73/NutriVision/blob/master/screenshots/Screenshot_20251130-104002_MyMoney.png"><img src="https://github.com/Aksx73/MyMoney/blob/master/screenshots/Screenshot_20251130-104002_MyMoney?raw=true" alt="Result screen" style="max-width: 100%;"></a></th>
+<th><a target="_blank" rel="noopener noreferrer" href="https://github.com/Aksx73/NutriVision/blob/master/screenshots/Screenshot_20251130-103843_MyMoney.png"><img src="https://github.com/Aksx73/MyMoney/blob/master/screenshots/Screenshot_20251130-103843_MyMoney.png?raw=true" alt="Add entry screen" style="max-width: 100%;"></a></th>
+<th><a target="_blank" rel="noopener noreferrer" href="https://github.com/Aksx73/NutriVision/blob/master/screenshots/Screenshot_20251130-104002_MyMoney.png"><img src="https://github.com/Aksx73/MyMoney/blob/master/screenshots/Screenshot_20251130-104002_MyMoney.png?raw=true" alt="Category list screen" style="max-width: 100%;"></a></th>
 </tr>
 </thead>
 </table>
