@@ -1,5 +1,6 @@
 package com.absut.cash.management.ui.entrylist
 
+import androidx.annotation.Keep
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -82,6 +83,7 @@ import com.absut.cash.management.ui.component.SnackbarHostWithController
 import com.absut.cash.management.ui.component.StoredIcon
 import com.absut.cash.management.util.getFormattedDate
 
+@Keep
 enum class EntryType(val value: Int) {
     CASH_IN(0),
     CASH_OUT(1)

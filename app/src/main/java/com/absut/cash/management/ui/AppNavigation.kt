@@ -1,5 +1,6 @@
 package com.absut.cash.management.ui
 
+import androidx.annotation.Keep
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -17,14 +18,17 @@ import com.absut.cash.management.ui.entrylist.EntryListViewModel
 import kotlinx.serialization.Serializable
 
 
+@Keep
 @Serializable
 data object BookListRoute
 
+@Keep
 @Serializable
 data class EntryListRoute(
     val bookId: Int,
 )
 
+@Keep
 @Serializable
 data class AddUpdateEntryRoute(
     val entryType: EntryType,
@@ -32,6 +36,7 @@ data class AddUpdateEntryRoute(
     val entryId: Int? = null,
 )
 
+@Keep
 @Serializable
 data object CategoryListRoute
 

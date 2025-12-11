@@ -1,6 +1,7 @@
 package com.absut.cash.management.data.model
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -10,6 +11,7 @@ import com.absut.cash.management.util.Constants
 import kotlinx.parcelize.Parcelize
 import java.text.DateFormat
 
+@Keep
 @Parcelize
 @Entity(
     tableName = Constants.ENTRY_TABLE_NAME,
@@ -46,6 +48,7 @@ data class Entry(
         get() = DateFormat.getDateInstance().format(updatedAt)
 }
 
+@Keep
 data class EntryWithCategory(
     @Embedded val entry: Entry,
     @Embedded(prefix = "category_") val category: Category?

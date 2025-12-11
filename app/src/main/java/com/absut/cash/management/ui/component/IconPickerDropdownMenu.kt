@@ -1,5 +1,6 @@
 package com.absut.cash.management.ui.component
 
+import androidx.annotation.Keep
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -113,6 +114,7 @@ fun IconPickerDropdownMenu(
     }
 }
 
+@Keep
 enum class StoredIcon(
     val imageVector: ImageVector,
     val storedId: Int,

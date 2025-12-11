@@ -50,8 +50,8 @@ class BookDaoTest {
 
         // Then: The retrieved book should match the inserted book
         val retrievedBook = bookDao.getBookById(bookId).first()
-        Truth.assertThat(retrievedBook.title).isEqualTo(book.title)
-        Truth.assertThat(retrievedBook.bookAmount).isEqualTo(book.bookAmount)
+        Truth.assertThat(retrievedBook?.title).isEqualTo(book.title)
+        Truth.assertThat(retrievedBook?.bookAmount).isEqualTo(book.bookAmount)
     }
 
     @Test
@@ -82,8 +82,8 @@ class BookDaoTest {
 
         // Then: Check if the book has been updated
         val retrievedBook = bookDao.getBookById(bookId).first()
-        Truth.assertThat(retrievedBook.title).isEqualTo("Updated Budget")
-        Truth.assertThat(retrievedBook.bookAmount).isEqualTo(1000)
+        Truth.assertThat(retrievedBook?.title).isEqualTo("Updated Budget")
+        Truth.assertThat(retrievedBook?.bookAmount).isEqualTo(1000)
     }
 
     @Test
